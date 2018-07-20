@@ -1,0 +1,10 @@
+# HOWTO-doc
+
+***
+Generating documentation, from project directory
+***
+
+1. First generate cmake files like you did in the simple build
+2. make html
+3. the doc is generated in ./doc/doc-doxygen/html
+

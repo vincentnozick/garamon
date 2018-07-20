@@ -1,0 +1,19 @@
+# HOWTO-build
+
+***
+simple build from the project directory
+***
+mkdir build
+cd build
+cmake ..
+make
+
+***
+install from the project directory
+***
+mkdir build
+cd build
+cmake ..
+make
+make install
+

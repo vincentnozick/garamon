@@ -1,0 +1,95 @@
+#include <project_namespace/Mvec.hpp>
+
+// declaration / instanciation
+project_namespace::Mvec<double> mv1;            // empty multivector
+project_namespace::Mvec<double> mv2(mv1);       // initialization from another multivector
+project_namespace::Mvec<double> mv3 = mv1;      // initialization from another multivector
+
+
+// display
+cout << mv1 << endl;               // display a multivector
+cout << mv1.metric << endl;        // display the metric of project_namespace
+cout << (mv1 ^ mv2) << endl;       // parenthesis needed (because of the priority of the operators)
+
+
+// ga constants
+project_namespace::I<double>();                 // pseudo-scalar of the algebra
+project_namespace::Iinv<double>()               // inverse pseudo-scalar of the algebra
+project_namespace::eproject_first_vector_basisproject_second_vector_basis<double>();               // any multivector components project_limitation_vector_basis
+
+
+// initialisation and component access
+mv1 = 5*project_namespace::eproject_first_vector_basis() -5*project_namespace::eproject_second_vector_basis();  // initialization from constant multivectors
+mv1[project_namespace::Eproject_first_vector_basisproject_second_vector_basis] = 42.0;             // initialization per components
+mv2[project_namespace::Eproject_first_vector_basis] = mv1[project_namespace::Eproject_second_vector_basis]      // component access
+mv2[project_namespace::scalar] = 42.0;          // access to the scalar part of the multivector
+
+
+// basic usage
+mv.roundZero(1.0e-8);              // inplace sets to 0 multivector's components with absolute value lower than a threshold
+mv.clear();                        // makes the multivector empty
+mv.clear(k);                       // remove the component of grade k
+if(mv.isEmpty())                   // test multivector emptiness
+if(mv1 == mv2)                     // test multivector equality
+if(mv1 != mv2)                     // test multivector difference
+
+
+// grade
+int a = mv.grade();                // highest grade of the multivector
+mv3 = mv1.grade(k);                // get the part of grade k of a multivector
+if(mv1.sameGrade(mv2))             // test if two multivectors have the same grade
+if(mv1.isGrade(k))                 // test if a multivector contains components of grade k
+if(mv.isHomogeneous())             // check if the vector has a single grade
+mv.clear(k);                       // remove the component of grade k
+
+
+// norm
+double n = mv.norm();              // norm L2
+double n = mv.quadraticNorm()      // mv.norm() x mv.norm()
+
+
+// basic operators
+mv3 = mv1 + mv2 + 5.0;             // addition
+mv3 = mv1 - mv2 - 3.0;             // subtraction
+mv3 = -mv2;                        // unary minus
+mv3 = ~mv1;                        // reverse operator
+
+
+// products (operators)
+mv3 = mv1 ^ mv2;                   // outer product
+mv3 = mv1 | mv2;                   // inner product
+mv3 = mv1 < mv2;                   // left contraction
+mv3 = mv1 > mv2;                   // right contraction
+mv3 = mv1 * mv2;                   // geometric product
+mv3 = mv1 / mv2;                   // inverse operator (geometric product of mv1 and inv(mv2))
+
+
+// compact operators
+mv1 ^= mv2;                        // outer product
+mv1 |= mv2;                        // inner product
+mv1 *= mv2;                        // geometric product
+mv1 /= mv2;                        // inverse operator
+mv1 += mv2;                        // addition operator
+mv1 -= mv2;                        // subtraction operator
+
+
+// products (explicit)
+mv3 = mv1.scalarProduct(mv2);      // scalar product (sum of inner products between same-grade pairs from mv1 and mv2)
+mv3 = mv1.hestenesProduct(mv2);    // Hestenes product (inner product minus scalar product)
+mv3 = mv1.leftContraction(mv2);    // left contraction
+mv3 = mv1.rightContraction(mv2);   // right contraction
+mv3 = mv1.inv();                   // inverse function
+mv3 = mv.reverse();                // reverse function
+
+project_limitation_dual
+// dual
+mv3 = mv1.dual();                  // dual of the multivector
+mv3 = !mv1;                        // dual of the multivector
+
+
+// for high dimensions: useful fast dual-operation calls
+mv3 = mv1.outerPrimalDual(mv2);    // fast version of mv3 = mv1 ^ mv2.dual();
+mv3 = mv1.outerDualPrimal(mv2);    // fast version of mv3 = mv1.dual() ^ mv2;
+mv3 = mv1.outerDualDual(mv2);      // fast version of mv3 = mv1.dual() ^ mv2.dual();
+
+
