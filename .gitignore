@@ -32,3 +32,5 @@
 
 # building directory
 build/*
+Debug/*
+Release/*
