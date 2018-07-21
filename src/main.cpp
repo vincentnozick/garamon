@@ -143,8 +143,8 @@ int main(int argc, char** argv){
         substitute(data,"project_calltobasischange_inverse_loading", callAllDirectOrInverseMatricesFunctions(sizeTransformationMatrices, true) );
     }else{
         // diagonal metric = do not require any basis transformations
-        substitute(data,"project_direct_transformation_matrices", "");
-        substitute(data,"project_inverse_transformation_matrices","");
+        substitute(data,"project_basischange_direct_loading", "");
+        substitute(data,"project_basischange_inverse_loading","");
         substitute(data,"project_calltobasischange_direct_loading","" );
         substitute(data,"project_calltobasischange_inverse_loading","" );
     }
@@ -178,7 +178,7 @@ int main(int argc, char** argv){
 
         // fast dual
         if(metaData.inputMetricDiagonal == false) substitute(data,"project_dual_arrays_permutations_and_coefficients", fastDualUtilitiesBasisChange(metaData.dimension, algebraConfig, transformationMatrices, inverseTransformationMatrices, metaData.diagonalMetric,signedPseudoScalar,srcDirectory,fastDualComponents));
-        else{substitute(data,"project_dual_arrays_permutations_and_coefficients", fastDualUtilities(metaData.dimension, algebraConfig,metaData.diagonalMetric,signedPseudoScalar,srcDirectory));}
+        else{substitute(data,"project_dual_arrays_permutations_and_coefficients", fastDualUtilities(metaData.dimension, algebraConfig,metaData.diagonalMetric,signedPseudoScalar,srcDirectory,fastDualComponents));}
 
         // recursive dual products
         if(metaData.inputMetricDiagonal == false) substitute(data,"project_dual_arrays_recursive_coefficients", primalWedgeDualUtilitiesBasisChange(metaData.dimension, algebraConfig,transformationMatrices,inverseTransformationMatrices,metaData.diagonalMetric,signedPseudoScalar) );
@@ -198,8 +198,7 @@ int main(int argc, char** argv){
     if(metaData.fullRankMetric == false){ // no dual
         substitute(data,"project_fill_dual_array","");
     }else{
-    if(metaData.inputMetricDiagonal == false) substitute(data,"project_fill_dual_array", loadAllDualCoefficientsArray(perGradeStartingIndex, fastDualComponents));
-    else{substitute(data,"project_fill_dual_array","");}
+        substitute(data,"project_fill_dual_array", loadAllDualCoefficientsArray(perGradeStartingIndex, fastDualComponents));
     }
     writeFile(data, srcDirectory + "/DualCoefficients.hpp");
 

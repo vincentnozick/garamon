@@ -65,7 +65,8 @@ std::string reverseSignArrayToString(const unsigned int &dimension);
 std::string xorIndexToGradeAndHomogeneousIndexArraysToString(unsigned int dimension, const ProductTools& product);
 
 std::string fastDualUtilities(unsigned int dimension, const ProductTools& product,
-                                        const Eigen::VectorXd &diagonalMetric, double scaleInversePseudoScalar,std::string srcDirectory);
+                                        const Eigen::VectorXd &diagonalMetric, double scaleInversePseudoScalar,std::string srcDirectory,
+                                        std::string& fastDualComponents);
 
 
 std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTools& product,

@@ -467,7 +467,8 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
 std::string fastDualUtilities(unsigned int dimension, const ProductTools& product,
                               const Eigen::VectorXd &diagonalMetric,
                               double scaleInversePseudoScalar,
-                              std::string srcDirectory){
+                              std::string srcDirectory,
+                              std::string& fastDualComponents){
 
     std::string outputStringPermutations="    std::array<std::vector<unsigned int>, " + std::to_string(dimension+1) + "> dualPermutations = {{ ";
 
@@ -536,9 +537,12 @@ std::string fastDualUtilities(unsigned int dimension, const ProductTools& produc
         dualCoefficientsComponents.push_back(products.coefficient);
     }
     //outputStringCoefficients += "}};";
+    
+    for(unsigned int i=0;i<dualCoefficientsComponents.size();++i){
+        fastDualComponents+= std::to_string(dualCoefficientsComponents[i])+" ";
+    }
 
-    //std::cout << "final primal wedge "  << std::endl;
-    //writeVectorToBinaryFile(srcDirectory + "/dualArrayCoefficients.bin" + "", dualCoefficientsComponents); // TO replace
+
 
     return outputStringPermutations + outputStringCoefficients;
 }
