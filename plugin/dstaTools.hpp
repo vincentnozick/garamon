@@ -33,6 +33,15 @@ namespace dsta{
     }
 
 
+    /// \brief return the coefficient associated of the 
+    /// note that i= 1,2,3 and j=1,2 (first or second particle) 
+    template<typename T> 
+    T coefficient_j_i(dsta::Mvec<T> mv, const unsigned int j, const unsigned int i){
+        dsta::Mvec<T> mv;
+        mv[(1<<(4*(j-1))) + (1<<((4*(j-1)) + i )) ]  = 1.0;
+        return mv;
+    }
+
     /// \brief build the bivectors basis used, first particle 
     template<typename T>
     dsta::Mvec<T> sigma_1_1(){
@@ -104,6 +113,7 @@ namespace dsta{
 
 
 
+
     /// \brief build the projection operator which is called E, see Equation (9.10) of Section 9.1 of the reference
     template<typename T>
     dsta::Mvec<T> E(){
@@ -141,82 +151,6 @@ namespace dsta{
         mv[dsta::E1] = x;
         mv[dsta::E2] = y;
         mv[dsta::E3] = z;
-
-        return mv;
-    }
-
-    /// \brief build a dual point from a vector (actually, more a conjugate than a dual)
-    /// \param x vector component related to e1
-    /// \param y vector component related to e2
-    /// \param z vector component related to e3
-    /// \return a multivector corresponding to a dual point of DPGA
-    template<typename T>
-    dsta::Mvec<T> dualPoint(const T &x, const T &y, const T &z){
-
-        dsta::Mvec<T> mv;
-        mv[dsta::Ed0] = 1.0;
-        mv[dsta::Ed1] = x;
-        mv[dsta::Ed2] = y;
-        mv[dsta::Ed3] = z;
-
-        return mv;
-    }
-
-    /// \brief build a dual point from a vector (actually, more a conjugate than a dual)
-    /// \param pt point of DPGA
-    /// \return a multivector corresponding to a dual point of DPGA
-    template<typename T>
-    dsta::Mvec<T> dualPoint(const dsta::Mvec<T> &pt){
-
-        dsta::Mvec<T> dualPt;
-        dualPt[dsta::Ed0] = pt[dsta::E0];
-        dualPt[dsta::Ed1] = pt[dsta::E1];
-        dualPt[dsta::Ed2] = pt[dsta::E2];
-        dualPt[dsta::Ed3] = pt[dsta::E3];
-
-        return dualPt;
-    }
-
-
-    /// a quadric has the form (a b c d e f g h i j)
-    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0 
-    template<typename T>
-    std::vector<T> ga2quadric(const dsta::Mvec<T> &mv){
-
-        std::vector<T> quadric(10);
-        quadric[0] = - mv[dsta::E0d0] / 4.0;
-        quadric[1] = - mv[dsta::E1d1] / 4.0;
-        quadric[2] = - mv[dsta::E2d2] / 4.0;
-        quadric[9] = - mv[dsta::E3d3] / 4.0;
-
-        quadric[3] = - mv[dsta::E0d1] / 2.0;
-        quadric[4] = - mv[dsta::E0d2] / 2.0;
-        quadric[5] = - mv[dsta::E2d1] / 2.0;
-        quadric[6] = - mv[dsta::E0d3] / 2.0;
-        quadric[7] = - mv[dsta::E3d1] / 2.0;
-        quadric[8] = - mv[dsta::E2d3] / 2.0;
-
-        return quadric;
-    }
-
-    /// a quadric has the form (a b c d e f g h i j)
-    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0 
-    template<typename T>
-    dsta::Mvec<T> quadric2ga(const std::vector<T> &quadric){
-
-        dsta::Mvec<T> mv;
-
-        mv[dsta::E0d0] = - 4.0 * quadric[0];
-        mv[dsta::E1d1] = - 4.0 * quadric[1];
-        mv[dsta::E2d2] = - 4.0 * quadric[2];
-        mv[dsta::E3d3] = - 4.0 * quadric[9];
-
-        mv[dsta::E0d1] = mv[dsta::E1d0] = - 2.0 * quadric[3];
-        mv[dsta::E0d2] = mv[dsta::E2d0] = - 2.0 * quadric[4];
-        mv[dsta::E1d2] = mv[dsta::E2d1] = - 2.0 * quadric[5];
-        mv[dsta::E0d3] = mv[dsta::E3d0] = - 2.0 * quadric[6];
-        mv[dsta::E1d3] = mv[dsta::E3d1] = - 2.0 * quadric[7];
-        mv[dsta::E2d3] = mv[dsta::E3d2] = - 2.0 * quadric[8];
 
         return mv;
     }
