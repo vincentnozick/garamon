@@ -33,13 +33,11 @@ namespace dsta{
     }
 
 
-    /// \brief return the coefficient associated of the 
+    /// \brief return the coefficient associated to the four blade 
     /// note that i= 1,2,3 and j=1,2 (first or second particle) 
     template<typename T> 
-    T coefficient_j_i(dsta::Mvec<T> mv, const unsigned int j, const unsigned int i){
-        dsta::Mvec<T> mv;
-        mv[(1<<(4*(j-1))) + (1<<((4*(j-1)) + i )) ]  = 1.0;
-        return mv;
+    T coefficient(dsta::Mvec<T> mv, const unsigned int firstParticleIndex, const unsigned int secondParticleIndex){
+        return mv[1+ (1<<4) + (1<<( firstParticleIndex)) + (1<<((4 + secondParticleIndex )))];
     }
 
     /// \brief build the bivectors basis used, first particle 
@@ -111,7 +109,26 @@ namespace dsta{
     }
 
 
+    // Check commutativity of the new basis, see Equation (9.5) of Section 9.1 of the reference
+    template<typename T>
+    bool isSigma_i_jCommutative(){
 
+        //  compare the sign of sigma_i_1 wedge sigma_k_2 with sigma_k_2 wedge sigma_i_1
+        for(unsigned int i=1;i<3;++i){ // first particle index
+            for(unsigned int k=1;k<3;++i){ // second particle index
+                if(i!=k){
+                    dsta::Mvec<T> sigma1 = sigma_j_i<T>(1,i); // first particle blade
+                    dsta::Mvec<T> sigma2 = sigma_j_i<T>(2,k); // second particle blade
+
+                    dsta::Mvec<T> resultDirect = sigma1 ^ sigma2;
+                    dsta::Mvec<T> resultPermuted = sigma2 ^ sigma1;
+                    if(std::abs(coefficient(resultDirect, i, k) - coefficient(resultPermuted, i, k)) != epsilon) 
+                        return false;
+                }
+            }
+        }   
+        return true;
+    }
 
 
     /// \brief build the projection operator which is called E, see Equation (9.10) of Section 9.1 of the reference
@@ -135,25 +152,6 @@ namespace dsta{
 
 
 
-
-
-
-    /// \brief build a point from a vector
-    /// \param x vector component related to e1
-    /// \param y vector component related to e2
-    /// \param z vector component related to e3
-    /// \return a multivector corresponding to a point of DPGA
-    template<typename T>
-    dsta::Mvec<T> point(const T &x, const T &y, const T &z){
-
-        dsta::Mvec<T> mv;
-        mv[dsta::E0] = 1.0;
-        mv[dsta::E1] = x;
-        mv[dsta::E2] = y;
-        mv[dsta::E3] = z;
-
-        return mv;
-    }
 
 
 } // namespace
