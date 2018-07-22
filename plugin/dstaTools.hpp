@@ -102,18 +102,6 @@ namespace dsta{
     }
 
 
-    // Check commutativity of the new basis, see Equation (9.5) of Section 9.1 of the reference
-    template<typename T>
-    bool isSigma_i_jCommutative(){
-        bool isCommutative= false;
-
-        //  compare the sign of sigma_i_1 wedge sigma_k_2 with sigma_k_2 wedge sigma_i_1
-        for(unsigned int i=1;i<3;++i){
-            // 
-
-        }   
-        return isCommutative;
-    }
 
 
     /// \brief build the projection operator which is called E, see Equation (9.10) of Section 9.1 of the reference
