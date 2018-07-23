@@ -27,83 +27,42 @@ namespace st3ga{
     template<typename T> 
     st3ga::Mvec<T> sigma_i(const unsigned int i){
         st3ga::Mvec<T> mv;
-        mv[1<<i]  = 1.0;
+        mv[1+1<<i]  = 1.0; // compute gamma 0 \wedge gamma i
         return mv;
     }
 
 
-    /// \brief return the coefficient associated to the four blade 
-    /// note that i= 1,2,3 and j=1,2 (first or second particle) 
-    template<typename T> 
-    T coefficient(st3ga::Mvec<T> mv, const unsigned int firstParticleIndex, const unsigned int secondParticleIndex){
-        return mv[1+ (1<<4) + (1<<( firstParticleIndex)) + (1<<((4 + secondParticleIndex )))];
-    }
-
-    /// \brief build the bivectors basis used, first particle 
+    /// \brief build the bivectors basis used, first timelike bivector
     template<typename T>
-    st3ga::Mvec<T> sigma_1_1(){
+    st3ga::Mvec<T> sigma_1(){
         st3ga::Mvec<T> mv;
-        mv[st3ga::E10_11_] = 1.0;
+        mv[st3ga::E01] = 1.0;
         return mv;
     }
 
 
-    /// \brief build the bivectors basis used, first particle 
+    /// \brief build the bivectors basis used, second timelike bivector 
     template<typename T>
-    st3ga::Mvec<T> sigma_1_2(){
+    st3ga::Mvec<T> sigma_2(){
         st3ga::Mvec<T> mv;
-        mv[st3ga::E10_12_] = 1.0;
+        mv[st3ga::E02] = 1.0;
         return mv;
     }
 
-    /// \brief build the bivectors basis used, first particle 
+    /// \brief build the bivectors basis used, third timelike bivector 
     template<typename T>
-    st3ga::Mvec<T> sigma_1_3(){
+    st3ga::Mvec<T> sigma3(){
         st3ga::Mvec<T> mv;
-        mv[st3ga::E10_13_] = 1.0;
-        return mv;
-    }
-
-
-    /// \brief build the bivectors basis used, second particle 
-    template<typename T>
-    st3ga::Mvec<T> sigma_2_1(){
-        st3ga::Mvec<T> mv;
-        mv[st3ga::E20_21_] = 1.0;
-        return mv;
-    }
-
-    /// \brief build the bivectors basis used, second particle 
-    template<typename T>
-    st3ga::Mvec<T> sigma_2_2(){
-        st3ga::Mvec<T> mv;
-        mv[st3ga::E20_22_] = 1.0;
-        return mv;
-    }
-
-    /// \brief build the bivectors basis used, second particle 
-    template<typename T>
-    st3ga::Mvec<T> sigma_2_3(){
-        st3ga::Mvec<T> mv;
-        mv[st3ga::E20_23_] = 1.0;
+        mv[st3ga::E03] = 1.0;
         return mv;
     }
 
 
-    /// \brief build the pseudo scalar of the first particle, see Equation (9.6) of Section 9.1 of the reference
+    /// \brief build the pseudo scalar of st3ga, using the notation of the paper
     template<typename T>
-    st3ga::Mvec<T> i_1(){
+    st3ga::Mvec<T> i(){
         st3ga::Mvec<T> mv;
-        mv[st3ga::E10_11_12_13_] = 1.0;
-        return mv;
-    }
-
-
-    /// \brief build the pseudo scalar of the second particle, see Equation (9.6) of Section 9.1 of the reference 
-    template<typename T>
-    st3ga::Mvec<T> i_2(){
-        st3ga::Mvec<T> mv;
-        mv[st3ga::E20_21_22_23_] = 1.0;
+        mv[st3ga::E0123] = 1.0;
         return mv;
     }
 
@@ -132,28 +91,38 @@ namespace st3ga{
 
 
 
-    /// \brief build the projection operator which is called E, see Equation (9.10) of Section 9.1 of the reference
+    /// \brief build the projection operator associated to sigma_1 
     template<typename T>
-    st3ga::Mvec<T> E(){
+    st3ga::Mvec<T> P_1(){
         st3ga::Mvec<T> mv;
-        mv = 0.5*(1-(i_1<T>()*sigma_1_3<T>() * i_2<T>()*sigma_2_3<T>()));
+        mv = 0.5*(1+(sigma_1<T>()));
         return mv;
     }
     
+    /// \brief build the projection operator associated to sigma_2 
+    template<typename T>
+    st3ga::Mvec<T> P_2(){
+        st3ga::Mvec<T> mv;
+        mv = 0.5*(1+(sigma_2<T>()));
+        return mv;
+    }
+
+    /// \brief build the projection operator associated to sigma_3 
+    template<typename T>
+    st3ga::Mvec<T> P_3(){
+        st3ga::Mvec<T> mv;
+        mv = 0.5*(1+(sigma_3<T>()));
+        return mv;
+    }
+
+
+
     /// \brief return whether the multivector mv is idempotent, i.e. mv*mv = mv
     template<typename T>
     bool isIdempotent(st3ga::Mvec<T> mv){
         return ((mv*mv)==(mv));
     }
 
-
-    /// \brief build the projection operator which is called E, see Equation (9.12) of Section 9.1 of the reference
-    template<typename T>
-    st3ga::Mvec<T> J(){
-        st3ga::Mvec<T> mv;
-        mv = (E<T>()*i_1<T>()*sigma_1_3<T>());
-        return mv;
-    }
 
 
 
