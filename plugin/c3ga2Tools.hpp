@@ -150,6 +150,57 @@ namespace c3ga2{
 	return mv;
     }
 
+
+    /// \brief build the cyclide component extraction operator
+    /// \return the multivector corresponding to the operator Tt4
+    template<typename T>
+    c3ga2::Mvec<T> Tt4(){
+	c3ga2::Mvec<T> mv;
+	mv[c3ga2::E0102] = -4.0;
+	return mv;
+    }
+
+    /// \brief build the cyclide component extraction operator
+    /// \return the multivector corresponding to the operator Tt2
+    template<typename T>
+    c3ga2::Mvec<T> Tt2(){
+	c3ga2::Mvec<T> mv;
+	mv[c3ga2::Ei102] = -1.0;
+	mv[c3ga2::E01i2] = -1.0;
+	return mv;
+    }
+
+    /// \brief build the cyclide component extraction operator
+    /// \return the multivector corresponding to the operator Txt2
+    template<typename T>
+    c3ga2::Mvec<T> Txt2(){
+	c3ga2::Mvec<T> mv;
+	mv[c3ga2::E102] = 1.0;
+	mv[c3ga2::E014] = 1.0;
+	return mv;
+    }
+
+    /// \brief build the cyclide component extraction operator
+    /// \return the multivector corresponding to the operator Tyt2
+    template<typename T>
+    c3ga2::Mvec<T> Tyt2(){
+	c3ga2::Mvec<T> mv;
+	mv[c3ga2::E202] = 1.0;
+	mv[c3ga2::E015] = 1.0;
+	return mv;
+    }
+
+    /// \brief build the cyclide component extraction operator
+    /// \return the multivector corresponding to the operator Tzt2
+    template<typename T>
+    c3ga2::Mvec<T> Tzt2(){
+	c3ga2::Mvec<T> mv;
+	mv[c3ga2::E302] = 1.0;
+	mv[c3ga2::E016] = 1.0;
+	return mv;
+    }
+
+
     /// a quadric has the form (a b c d e f g h i j)
     /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
     /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
@@ -165,12 +216,40 @@ namespace c3ga2{
     /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
     /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
     template<typename T>
+    c3ga2::Mvec<T> ga2quadric(const std::vector<T>& quadric){
+        c3ga2::Mvec<T> mv = quadric[0]*Tx2<T>() + quadric[1]*Ty2<T>() + quadric[2]*Tz2<T>() + quadric[3]*Txy<T>() + quadric[4]*Tzx<T>() + quadric[5]*Tyz<T>()  
+			  + quadric[6]*Tx<T>()  + quadric[7]*Ty<T>()  + quadric[8]*Tz<T>()  + quadric[9]*T1<T>();
+	
+        return mv;
+    }
+
+
+    /// a cyclide has the form (a b c d e f g h i j k l m n o p)
+    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
+    /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
+    template<typename T>
     std::vector<T> ga2quadric(const std::vector<T>& quadric){
         c3ga2::Mvec<T> mv = quadric[0]*Tx2<T>() + quadric[1]*Ty2<T>() + quadric[2]*Tz2<T>() + quadric[3]*Txy<T>() + quadric[4]*Tzx<T>() + quadric[5]*Tyz<T>()  
 			  + quadric[6]*Tx<T>()  + quadric[7]*Ty<T>()  + quadric[8]*Tz<T>()  + quadric[9]*T1<T>();
 	
         return mv;
     }
+
+
+
+
+
+    /// a quadric has the form (a b c d e f g h i j)
+    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
+    /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
+    template<typename T>
+    std::vector<T> ga2quadric(const std::vector<T>& quadric){
+        c3ga2::Mvec<T> mv = quadric[0]*Tx2<T>() + quadric[1]*Ty2<T>() + quadric[2]*Tz2<T>() + quadric[3]*Txy<T>() + quadric[4]*Tzx<T>() + quadric[5]*Tyz<T>()  
+			  + quadric[6]*Tx<T>()  + quadric[7]*Ty<T>()  + quadric[8]*Tz<T>()  + quadric[9]*T1<T>();
+	
+        return mv;
+    }
+
 
 
 
