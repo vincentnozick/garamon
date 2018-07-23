@@ -36,8 +36,18 @@ Install
     * you can find a sample code dedicated to project_namespace in the 'sample directory'
 
 
-## Install for Windows
+## Install for Windows with MinGW, using Windows Power Shell
     * Check the dependencies
+    * From Garamon root directory
+        * 'mkdir build'
+        * 'cd build'
+        * 'cmake -G "MinGW Makefiles" ..'
+        * check that the cmake output has no errors
+        * 'make'
+        * the binary library is on the 'build' directory
+        * (optional) 'mingw32-make install'
+        * (optional) ''mingw32-make html' to generate Doxygen documentation that can be found in 'build/doc/doc-doxygen/html/index.html'
+    * you can find a sample code dedicated to project_namespace in the 'sample directory'
 
 
 Usage

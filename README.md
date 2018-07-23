@@ -39,9 +39,9 @@ Install
     * From Garamon Generator root directory
         * 'mkdir build'
         * 'cd build'
+        * 'cmake -G "MinGW Makefiles" ..'
         * check that the cmake output has no errors
-		* cmake -G "MinGW Makefiles" ..
-		* mingw32-make
+		* 'mingw32-make'
         * the binary executable is on the 'build' directory
         * (optional and not required) 'mingw32-make install'
 
