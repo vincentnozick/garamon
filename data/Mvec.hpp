@@ -922,6 +922,7 @@ project_multivector_one_component
                 // check if the result is non-zero
                 if(!((itMv3->vec.array() != 0.0).any())){
                     mv3.mvData.erase(itMv3);
+                    mv3.gradeBitmap &= ~(1<<absGradeMv3);
                 }
             }
         return mv3;
@@ -968,6 +969,7 @@ project_multivector_one_component
                 // check if the result is non-zero
                 if(!((itMv3->vec.array() != 0.0).any())){
                     mv3.mvData.erase(itMv3);
+                    mv3.gradeBitmap &= ~(1<<absGradeMv3);
                 }
             }
 
@@ -1014,6 +1016,7 @@ project_multivector_one_component
                 // check if the result is non-zero
                 if(!((itMv3->vec.array() != 0.0).any())){
                     mv3.mvData.erase(itMv3);
+                    mv3.gradeBitmap &= ~(1<<absGradeMv3);
                 }
             }
         return mv3;
@@ -1057,6 +1060,7 @@ project_multivector_one_component
                 // check if the result is non-zero
                 if(!((itMv3->vec.array() != 0.0).any())){
                     mv3.mvData.erase(itMv3);
+                    mv3.gradeBitmap &= ~(1<<absGradeMv3);
                 }
             }
         return mv3;
@@ -1081,6 +1085,7 @@ project_singular_metric_comment_begin
                     // check if the result is non-zero
                     if(!((itMv3->vec.array() != 0.0).any())){
                         mv3.mvData.erase(itMv3);
+                        mv3.gradeBitmap &= ~(1<<grade_mv3);
                     }
                 }
             }
@@ -1105,6 +1110,7 @@ project_singular_metric_comment_begin
                     // check if the result is non-zero
                     if(!((itMv3->vec.array() != 0.0).any())){
                         mv3.mvData.erase(itMv3);
+                        mv3.gradeBitmap &= ~(1<<grade_mv3);
                     }
                 }
             }
@@ -1131,6 +1137,7 @@ project_singular_metric_comment_begin
                     // check if the result is non-zero
                     if(!((itMv3->vec.array() != 0.0).any())){
                         mv3.mvData.erase(itMv3);
+                        mv3.gradeBitmap &= ~(1<<grade_mv3);
                     }
                 }
             }
@@ -1161,6 +1168,7 @@ project_singular_metric_comment_end
                 // check if the result is non-zero
                 if(!((itMv3->vec.array() != 0.0).any())){
                     mv3.mvData.erase(itMv3);
+                    mv3.gradeBitmap &= ~(1<<absGradeMv3);
                 }
             }
         return mv3;
@@ -1182,6 +1190,7 @@ project_singular_metric_comment_end
                     outerFunctionsContainer<T>[itMv1.grade][itMv2.grade](itMv1.vec, itMv2.vec, itMv3->vec);
                     if(!((itMv3->vec.array() != 0.0).any())){
                         mv3.mvData.erase(itMv3);
+                        mv3.gradeBitmap &= ~(1<<gradeOuter);
                     }
                 }
 
@@ -1194,6 +1203,7 @@ project_singular_metric_comment_end
                     // check if the result is non-zero
                     if(!((itMv3->vec.array() != 0.0).any())){
                         mv3.mvData.erase(itMv3);
+                        mv3.gradeBitmap &= ~(1<<gradeInner);
                     }
 
                     // geometric product part
@@ -1204,6 +1214,7 @@ project_singular_metric_comment_end
                         // check if the result is non-zero
                         if(!((itMv3->vec.array() != 0.0).any())){
                             mv3.mvData.erase(itMv3);
+                            mv3.gradeBitmap &= ~(1<<gradeResult);
                         }
                     }
                 }

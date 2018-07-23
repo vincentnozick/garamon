@@ -131,6 +131,8 @@ namespace dsta{
     }
 
 
+
+
     /// \brief build the projection operator which is called E, see Equation (9.10) of Section 9.1 of the reference
     template<typename T>
     dsta::Mvec<T> E(){
@@ -139,6 +141,12 @@ namespace dsta{
         return mv;
     }
     
+    /// \brief return whether the multivector mv is idempotent, i.e. mv*mv = mv
+    template<typename T>
+    bool isIdempotent(dsta::Mvec<T> mv){
+        return ((mv*mv)==(mv));
+    }
+
 
     /// \brief build the projection operator which is called E, see Equation (9.12) of Section 9.1 of the reference
     template<typename T>
