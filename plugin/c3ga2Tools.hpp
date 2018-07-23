@@ -212,26 +212,15 @@ namespace c3ga2{
         return mv;
     }
 
-    /// a quadric has the form (a b c d e f g h i j)
-    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
-    /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
-    template<typename T>
-    c3ga2::Mvec<T> ga2quadric(const std::vector<T>& quadric){
-        c3ga2::Mvec<T> mv = quadric[0]*Tx2<T>() + quadric[1]*Ty2<T>() + quadric[2]*Tz2<T>() + quadric[3]*Txy<T>() + quadric[4]*Tzx<T>() + quadric[5]*Tyz<T>()  
-			  + quadric[6]*Tx<T>()  + quadric[7]*Ty<T>()  + quadric[8]*Tz<T>()  + quadric[9]*T1<T>();
-	
-        return mv;
-    }
 
 
-    /// a cyclide has the form (a b c d e f g h i j k l m n o p)
-    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
-    /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
+    /// \brief construct a Darboux cyclide with coefficients {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o}, see Equation (53) of the paper
+    /// Note that the same kind of function can be used to construct a Dupin cyclide
     template<typename T>
-    std::vector<T> ga2quadric(const std::vector<T>& quadric){
-        c3ga2::Mvec<T> mv = quadric[0]*Tx2<T>() + quadric[1]*Ty2<T>() + quadric[2]*Tz2<T>() + quadric[3]*Txy<T>() + quadric[4]*Tzx<T>() + quadric[5]*Tyz<T>()  
-			  + quadric[6]*Tx<T>()  + quadric[7]*Ty<T>()  + quadric[8]*Tz<T>()  + quadric[9]*T1<T>();
-	
+    std::vector<T> ga2DarbouxCyclide(const std::vector<T>& darbouxCyclide){
+        c3ga2::Mvec<T> mv = darbouxCyclide[0]*Tt4<T>() + darbouxCyclide[2]*Txt2<T>() + darbouxCyclide[3]*Tyt2<T>() + darbouxCyclide[4]*Tzt2<T>() + darbouxCyclide[5]*Tt2<T>() + darbouxCyclide[6]*Tx2<T>() 
+			  + darbouxCyclide[7]*Ty2<T>() + darbouxCyclide[8]*Tz2<T>() + darbouxCyclide[9]*Txy<T>() + darbouxCyclide[10]*Tzx<T>() + darbouxCyclide[11]*Tyz<T>()  
+			  + darbouxCyclide[12]*Tx<T>()  + darbouxCyclide[13]*Ty<T>()  + darbouxCyclide[14]*Tz<T>()  + darbouxCyclide[15]*T1<T>();
         return mv;
     }
 
@@ -239,57 +228,6 @@ namespace c3ga2{
 
 
 
-    /// a quadric has the form (a b c d e f g h i j)
-    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
-    /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
-    template<typename T>
-    std::vector<T> ga2quadric(const std::vector<T>& quadric){
-        c3ga2::Mvec<T> mv = quadric[0]*Tx2<T>() + quadric[1]*Ty2<T>() + quadric[2]*Tz2<T>() + quadric[3]*Txy<T>() + quadric[4]*Tzx<T>() + quadric[5]*Tyz<T>()  
-			  + quadric[6]*Tx<T>()  + quadric[7]*Ty<T>()  + quadric[8]*Tz<T>()  + quadric[9]*T1<T>();
-	
-        return mv;
-    }
-
-
-
-
-
-    /// a quadric has the form (a b c d e f g h i j)
-    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0 
-    template<typename T>
-    c3ga2::Mvec<T> quadric2ga(const c3ga2::Mvec<T> &quadric){
-
-        c3ga2::Mvec<T> mv;
-
-
-        mv[c3ga2::E0d0] = - 4.0 * quadric[0];
-        mv[c3ga2::E1d1] = - 4.0 * quadric[1];
-        mv[c3ga2::E2d2] = - 4.0 * quadric[2];
-        mv[c3ga2::E3d3] = - 4.0 * quadric[9];
-
-        mv[c3ga2::E0d1] = mv[c3ga2::E1d0] = - 2.0 * quadric[3];
-        mv[c3ga2::E0d2] = mv[c3ga2::E2d0] = - 2.0 * quadric[4];
-        mv[c3ga2::E1d2] = mv[c3ga2::E2d1] = - 2.0 * quadric[5];
-        mv[c3ga2::E0d3] = mv[c3ga2::E3d0] = - 2.0 * quadric[6];
-        mv[c3ga2::E1d3] = mv[c3ga2::E3d1] = - 2.0 * quadric[7];
-        mv[c3ga2::E2d3] = mv[c3ga2::E3d2] = - 2.0 * quadric[8];
-
-
-        std::vector<T> quadric(10);
-        quadric[0] = - mv[c3ga2::E0d0] / 4.0;
-        quadric[1] = - mv[c3ga2::E1d1] / 4.0;
-        quadric[2] = - mv[c3ga2::E2d2] / 4.0;
-        quadric[9] = - mv[c3ga2::E3d3] / 4.0;
-
-        quadric[3] = - mv[c3ga2::E0d1] / 2.0;
-        quadric[4] = - mv[c3ga2::E0d2] / 2.0;
-        quadric[5] = - mv[c3ga2::E2d1] / 2.0;
-        quadric[6] = - mv[c3ga2::E0d3] / 2.0;
-        quadric[7] = - mv[c3ga2::E3d1] / 2.0;
-        quadric[8] = - mv[c3ga2::E2d3] / 2.0;
-
-        return mv;
-    }
 
 
 } // namespace
