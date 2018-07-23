@@ -137,7 +137,7 @@ namespace dsta{
     template<typename T>
     dsta::Mvec<T> E(){
         dsta::Mvec<T> mv;
-        mv = 0.5*(1-(i_1<T>()*sigma_1_3<T>() + i_2<T>()*sigma_2_3<T>()));
+        mv = 0.5*(1-(i_1<T>()*sigma_1_3<T>() * i_2<T>()*sigma_2_3<T>()));
         return mv;
     }
     
