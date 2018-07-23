@@ -44,7 +44,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> sigma_1_1(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E1_0_1_1_] = 1.0;
+        mv[st3ga2::E10_11_] = 1.0;
         return mv;
     }
 
@@ -53,7 +53,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> sigma_1_2(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E1_0_1_2_] = 1.0;
+        mv[st3ga2::E10_12_] = 1.0;
         return mv;
     }
 
@@ -61,7 +61,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> sigma_1_3(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E1_0_1_3_] = 1.0;
+        mv[st3ga2::E10_13_] = 1.0;
         return mv;
     }
 
@@ -70,7 +70,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> sigma_2_1(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E2_0_2_1_] = 1.0;
+        mv[st3ga2::E20_21_] = 1.0;
         return mv;
     }
 
@@ -78,7 +78,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> sigma_2_2(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E2_0_2_2_] = 1.0;
+        mv[st3ga2::E20_22_] = 1.0;
         return mv;
     }
 
@@ -86,7 +86,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> sigma_2_3(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E2_0_2_3_] = 1.0;
+        mv[st3ga2::E20_23_] = 1.0;
         return mv;
     }
 
@@ -95,7 +95,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> i_1(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E1_0_1_1_1_2_1_3_] = 1.0;
+        mv[st3ga2::E10_11_12_13_] = 1.0;
         return mv;
     }
 
@@ -104,7 +104,7 @@ namespace st3ga2{
     template<typename T>
     st3ga2::Mvec<T> i_2(){
         st3ga2::Mvec<T> mv;
-        mv[st3ga2::E2_0_2_1_2_2_2_3_] = 1.0;
+        mv[st3ga2::E20_21_22_23_] = 1.0;
         return mv;
     }
 
