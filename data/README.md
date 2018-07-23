@@ -46,7 +46,6 @@ Install
         * 'make'
         * the binary library is on the 'build' directory
         * (optional) 'mingw32-make install'
-        * (optional) ''mingw32-make html' to generate Doxygen documentation that can be found in 'build/doc/doc-doxygen/html/index.html'
     * you can find a sample code dedicated to project_namespace in the 'sample directory'
 
 
