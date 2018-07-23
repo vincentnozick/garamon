@@ -111,18 +111,18 @@ namespace dsta{
 
     // Check commutativity of the new basis, see Equation (9.5) of Section 9.1 of the reference
     template<typename T>
-    bool isSigma_i_jCommutative(){
+    bool isSigma_i_jCommutative(const T &epsilon = 1.0e-7){
 
         //  compare the sign of sigma_i_1 wedge sigma_k_2 with sigma_k_2 wedge sigma_i_1
         for(unsigned int i=1;i<3;++i){ // first particle index
-            for(unsigned int k=1;k<3;++i){ // second particle index
+            for(unsigned int k=1;k<3;++k){ // second particle index
                 if(i!=k){
                     dsta::Mvec<T> sigma1 = sigma_j_i<T>(1,i); // first particle blade
                     dsta::Mvec<T> sigma2 = sigma_j_i<T>(2,k); // second particle blade
 
                     dsta::Mvec<T> resultDirect = sigma1 ^ sigma2;
                     dsta::Mvec<T> resultPermuted = sigma2 ^ sigma1;
-                    if(std::abs(coefficient(resultDirect, i, k) - coefficient(resultPermuted, i, k)) != epsilon) 
+                    if(std::abs(coefficient(resultDirect, i, k) - coefficient(resultPermuted, i, k)) > epsilon) 
                         return false;
                 }
             }

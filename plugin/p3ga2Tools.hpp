@@ -15,7 +15,7 @@
 #pragma once
 
 // Internal Includes
-#include <p3ga/2Mvec.hpp>
+#include <p3ga2/Mvec.hpp>
 
 
 /// \namespace grouping the multivectors object
