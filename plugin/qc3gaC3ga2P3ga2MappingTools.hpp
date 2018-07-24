@@ -5,9 +5,8 @@
 
 /// \file qc3gaC3ga2P3ga2MappingTools.hpp
 /// \author Stephane Breuils, Vincent Nozick
-/// \brief some useful functions when using the mapping between double projective geometric algebra of R^3 (c3ga2).
-///  Use this file if you generated the lib using the "p3ga2.conf" configuration file. Double projective geometric algebra of R^3 is described in the following paper: Juan, D., Goldman, R., Mann, S.: Modeling 3D geometry in the Clifford Algebra R 4,4 . Adv. Appl. Clifford Algebras 27(4), 3039–3062 (2017)
-
+/// \brief some useful functions when using the mapping between the main approaches to deal with quadrics (c3ga2,qc3ga, p3ga2).
+///  Use this file if you generated the lib using the "p3ga2.conf" but also "c3ga2.conf" and "qc3ga.conf" configuration files.
 
 
 // Anti-doublon
