@@ -151,6 +151,90 @@ namespace c3ga2{
     }
 
 
+
+    /// \brief build the reciprocal squared term operator Tx2_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Tx2
+    template<typename T>
+    c3ga2::Mvec<T> Tx2_reciprocal(){
+        return -Tx2<T>();
+    }
+
+    /// \brief build the reciprocal squared term operator Ty2_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Ty2
+    template<typename T>
+    c3ga2::Mvec<T> Ty2_reciprocal(){
+        return -Ty2<T>();
+    }
+
+    /// \brief build the reciprocal squared term operator Tz2_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Tz2
+    template<typename T>
+    c3ga2::Mvec<T> Tz2_reciprocal(){
+        return -Tz2<T>();
+    }
+
+    /// \brief build the reciprocal cross term operator Txy_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Txy
+    template<typename T>
+    c3ga2::Mvec<T> Txy_reciprocal(){
+        return -2*Txy<T>();
+    }
+
+    /// \brief build the reciprocal cross term operator Tzx_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Tzx
+    template<typename T>
+    c3ga2::Mvec<T> Tzx_reciprocal(){
+        return -2*Tzx<T>();
+    }
+
+    /// \brief build the reciprocal cross term operator Tzx_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Tzx
+    template<typename T>
+    c3ga2::Mvec<T> Tyz_reciprocal(){
+        return -2*Tyz<T>();
+    }
+
+    /// \brief build the reciprocal single term operator Tx_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Tx
+    template<typename T>
+    c3ga2::Mvec<T> Tx_reciprocal(){
+        c3ga2::Mvec<T> mv;
+        mv[c3ga2::E102] = 1.0;
+        mv[c3ga2::E014] = 1.0;
+        return mv;
+    }
+
+    /// \brief build the reciprocal single term operator Ty_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Ty
+    template<typename T>
+    c3ga2::Mvec<T> Ty_reciprocal(){
+        c3ga2::Mvec<T> mv;
+        mv[c3ga2::E202] = 1.0;
+        mv[c3ga2::E015] = 1.0;
+        return mv;
+    }
+
+    /// \brief build the reciprocal single term operator Tz_reciprocal
+    /// \return the multivector corresponding to the reciprocal extraction operator Tz
+    template<typename T>
+    c3ga2::Mvec<T> Tz_reciprocal(){
+        c3ga2::Mvec<T> mv;
+        mv[c3ga2::E302] = 1.0;
+        mv[c3ga2::E016] = 1.0;
+        return mv;
+    }
+
+    /// \brief build the reciprocal unit term operator Tz
+    /// \return the multivector corresponding to the reciprocal extraction operator T1
+    template<typename T>
+    c3ga2::Mvec<T> T1_reciprocal(){
+        c3ga2::Mvec<T> mv;
+        mv[c3ga2::E0102] = 1.0;
+        return mv;
+    }
+
+
+
     /// \brief build the cyclide component extraction operator
     /// \return the multivector corresponding to the operator Tt4
     template<typename T>
@@ -201,15 +285,38 @@ namespace c3ga2{
     }
 
 
+
+
+
     /// a quadric has the form (a b c d e f g h i j)
     /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
-    /// \brief construct the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
+    /// \brief construct the multivector representing the quadric whose coefficients are {a,b,c,d,e,f,g,h,i,j}
     template<typename T>
-    c3ga2::Mvec<T> ga2quadric(const std::vector<T>& quadric){
+    c3ga2::Mvec<T> quadric2ga(const std::vector<T>& quadric){
         c3ga2::Mvec<T> mv = quadric[0]*Tx2<T>() + quadric[1]*Ty2<T>() + quadric[2]*Tz2<T>() + quadric[3]*Txy<T>() + quadric[4]*Tzx<T>() + quadric[5]*Tyz<T>()  
 			  + quadric[6]*Tx<T>()  + quadric[7]*Ty<T>()  + quadric[8]*Tz<T>()  + quadric[9]*T1<T>();
 	
         return mv;
+    }
+
+
+    /// a quadric has the form (a b c d e f g h i j)
+    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gxw + hyw + izw + jw^2 = 0
+    /// \brief construct the quadric whose bivector multivector is mv, to achieve that we use the reciprocal bivector operators  
+    template<typename T>
+    std::vector<T> ga2quadric(c3ga2::Mvec<T> mv ){
+        std::vector<T> quadric(10);
+        quadric[0] = (Tx2_reciprocal<T>()|mv); // a coefficient
+        quadric[1] = (Ty2_reciprocal<T>()|mv); // b coefficient
+        quadric[2] = (Tz2_reciprocal<T>()|mv); // c coefficient
+        quadric[3] = (Txy_reciprocal<T>()|mv); // d coefficient
+        quadric[4] = (Tzx_reciprocal<T>()|mv); // e coefficient
+        quadric[5] = (Tyz_reciprocal<T>()|mv); // f coefficient
+        quadric[6] = (Tx_reciprocal<T>()|mv);  // g coefficient
+        quadric[7] = (Ty_reciprocal<T>()|mv);  // h coefficient
+        quadric[8] = (Tz_reciprocal<T>()|mv);  // i coefficient
+        quadric[9] = (T1_reciprocal<T>()|mv);  // j coefficient
+        return quadric;
     }
 
 
