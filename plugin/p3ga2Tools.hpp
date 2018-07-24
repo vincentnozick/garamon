@@ -22,35 +22,35 @@
 namespace p3ga2{
 
     /// \brief build a point from a vector
-    /// \param x vector component related to e1
-    /// \param y vector component related to e2
-    /// \param z vector component related to e3
+    /// \param x vector component related to e0
+    /// \param y vector component related to e1
+    /// \param z vector component related to e2
     /// \return a multivector corresponding to a point of DPGA
     template<typename T>
     p3ga2::Mvec<T> point(const T &x, const T &y, const T &z){
 
         p3ga2::Mvec<T> mv;
-        mv[p3ga2::E0] = 1.0;
-        mv[p3ga2::E1] = x;
-        mv[p3ga2::E2] = y;
-        mv[p3ga2::E3] = z;
+        mv[p3ga2::E0] = x;
+        mv[p3ga2::E1] = y;
+        mv[p3ga2::E2] = z;
+        mv[p3ga2::E3] = 1.0;
 
         return mv;
     }
 
     /// \brief build a dual point from a vector (actually, more a conjugate than a dual)
-    /// \param x vector component related to e1
-    /// \param y vector component related to e2
-    /// \param z vector component related to e3
+    /// \param x vector component related to e0
+    /// \param y vector component related to e1
+    /// \param z vector component related to e2
     /// \return a multivector corresponding to a dual point of DPGA
     template<typename T>
     p3ga2::Mvec<T> dualPoint(const T &x, const T &y, const T &z){
 
         p3ga2::Mvec<T> mv;
-        mv[p3ga2::Ed0] = 1.0;
-        mv[p3ga2::Ed1] = x;
-        mv[p3ga2::Ed2] = y;
-        mv[p3ga2::Ed3] = z;
+        mv[p3ga2::Ed0] = x;
+        mv[p3ga2::Ed1] = y;
+        mv[p3ga2::Ed2] = z;
+        mv[p3ga2::Ed3] = 1.0;
 
         return mv;
     }
