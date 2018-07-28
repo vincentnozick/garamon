@@ -96,19 +96,16 @@ namespace qc3ga{
     /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gx + hy + iz + j = 0 
     template<typename T>
     qc3ga::Mvec<T> dualQuadric2ga(const T a, const T b, const T c, const T d, const T e, const T f, const T g, const T h, const T i, const T j){
-
         qc3ga::Mvec<T> mv;
-
-        mv[qc3ga::E01] = - 2.0 * a;
-        mv[qc3ga::E02] = - 2.0 * b;
-        mv[qc3ga::E03] = - 2.0 * c;
-        mv[qc3ga::E04] = - d;
-        mv[qc3ga::E05] = - e;
-        mv[qc3ga::E06] = - f;
-
-        mv[qc3ga::E1] = g;
-        mv[qc3ga::E2] = h;
-        mv[qc3ga::E3] = i;
+        mv[qc3ga::E01] = - 2.0 * a; // x^2
+        mv[qc3ga::E02] = - 2.0 * b; // y^2
+        mv[qc3ga::E03] = - 2.0 * c; // z^2
+        mv[qc3ga::E04] = - d;       // xy
+        mv[qc3ga::E05] = - e;       // xz
+        mv[qc3ga::E06] = - f;       // yz
+        mv[qc3ga::E1] = g;          // x
+        mv[qc3ga::E2] = h;          // y
+        mv[qc3ga::E3] = i;          // z
 
         mv[qc3ga::Ei1] = mv[qc3ga::Ei2] = mv[qc3ga::Ei3] = - j / 3.0;
         
@@ -118,9 +115,28 @@ namespace qc3ga{
     /// a quadric has the form (a b c d e f g h i j)
     /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gx + hy + iz + j = 0 
     template<typename T>
+    qc3ga::Mvec<T> planeToDualGA(const T a, const T b, const T c, const T d){
+        qc3ga::Mvec<T> mv;
+        mv[qc3ga::E1] = a;          // x
+        mv[qc3ga::E2] = b;          // y
+        mv[qc3ga::E3] = c;          // z
+
+        mv[qc3ga::Ei1] = mv[qc3ga::Ei2] = mv[qc3ga::Ei3] = - d / 3.0; // 1
+        
+        return mv;
+    }
+
+
+
+    /// a quadric has the form (a b c d e f g h i j)
+    /// with ax^2 + by^2 + cz^2 + dxy + exz + fyz + gx + hy + iz + j = 0 
+    template<typename T>
     qc3ga::Mvec<T> dualQuadric2ga(const std::vector<T> &quadric){
         return dualQuadric2ga<T>(quadric[0], quadric[1], quadric[2], quadric[3], quadric[4], quadric[5], quadric[6], quadric[7], quadric[8], quadric[9]);
     }
+
+
+
 
 	
 	/// a quadric has the form (a b c d e f g h i j)

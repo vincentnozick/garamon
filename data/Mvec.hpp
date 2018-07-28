@@ -1357,9 +1357,8 @@ project_singular_metric_comment_begin
 
             // add the k-vector to the resulting multivector
             mvResult.mvData.push_back(kvec);
-            mvResult.gradeBitmap |= kvec.grade;
+            mvResult.gradeBitmap |= (1 << kvec.grade);
         }
-
         return mvResult;
     };
 project_singular_metric_comment_end
