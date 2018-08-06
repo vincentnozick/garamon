@@ -631,8 +631,8 @@ std::string primalWedgeDualUtilitiesBasisChange(unsigned int dimension, const Pr
 // generate the prototype of BasisTransformComponents
 std::string basisTransformMatricesLoad(){
     std::string outputString="";
-    outputString += "    const std::array<Eigen::SparseMatrix<double, Eigen::ColMajor>,project_dim_plus_one> transformationMatrices = loadMatrices<double>(); /*!< set transformation matrices to transform a k-vector from the orhogonal basis to the original basis */\n";
-    outputString += "    const std::array<Eigen::SparseMatrix<double, Eigen::ColMajor>,project_dim_plus_one> transformationMatricesInverse = loadMatricesInverse<double>(); /*!< set transformation matrices to transform a k-vector from the original basis to the orhogonal basis */\n";
+    outputString += "    template<typename T>\n    const std::array<Eigen::SparseMatrix<T, Eigen::ColMajor>,project_dim_plus_one> transformationMatrices = loadMatrices<T>(); /*!< set transformation matrices to transform a k-vector from the orhogonal basis to the original basis */\n";
+    outputString += "    template<typename T>\n    const std::array<Eigen::SparseMatrix<T, Eigen::ColMajor>,project_dim_plus_one> transformationMatricesInverse = loadMatricesInverse<T>(); /*!< set transformation matrices to transform a k-vector from the original basis to the orhogonal basis */\n";
 
     return outputString;
 }
@@ -722,7 +722,7 @@ std::string templateVectorToOrthogonalBasisToString(){
     std::string result = "Mvec project() const {\n"
             "            Mvec mvProjected;\n"
             "            for(auto & itMv : this->mvData)\n"
-            "                mvProjected.mvData[itMv.first] = (transformationMatricesInverse[itMv.first]*itMv.second); // (transformationMatricesInverse<T>[itMv.first]*itMv.second)\n"
+            "                mvProjected.mvData[itMv.first] = (transformationMatricesInverse<T>[itMv.first]*itMv.second); // (transformationMatricesInverse<T>[itMv.first]*itMv.second)\n"
             "            return mvProjected;\n"
             "        }\n"
             "\n"
@@ -731,7 +731,7 @@ std::string templateVectorToOrthogonalBasisToString(){
             "            for(auto & itMv : this->mvData){\n"
             "                if((itMv.second.array() != 0.0).any()){\n"
             "                    // Compute the change of basis for mv2: from non-orthogonal to orthogonal\n"
-            "                    mvBackProjected.mvData[itMv.first] = (transformationMatrices[itMv.first] * itMv.second);\n"
+            "                    mvBackProjected.mvData[itMv.first] = (transformationMatrices<T>[itMv.first] * itMv.second);\n"
             "                }\n"
             "            }\n"
             "            return mvBackProjected;\n"
@@ -964,12 +964,12 @@ std::string generateInnerRecursiveBasisChange(const unsigned int gradeMv1, const
         outputString += "\t\trightContractionProductHomogeneous<T>";
 
     // put the arguments
-    outputString += "(transformationMatricesInverse[" + std::to_string(gradeMv1) + "]*mv1,"
-                    + "transformationMatricesInverse[" + std::to_string(gradeMv2) + "]*mv2,tmp,"
+    outputString += "(transformationMatricesInverse<T>[" + std::to_string(gradeMv1) + "]*mv1,"
+                    + "transformationMatricesInverse<T>[" + std::to_string(gradeMv2) + "]*mv2,tmp,"
                     + std::to_string(gradeMv1) + "," + std::to_string(gradeMv2) + "," + std::to_string(gradeMv3) + ");\n";
 
     // change basis for mv3
-    outputString += "\t\tmv3 += transformationMatrices[" + std::to_string(gradeMv3) + "]*tmp;\n";
+    outputString += "\t\tmv3 += transformationMatrices<T>[" + std::to_string(gradeMv3) + "]*tmp;\n";
 
     return outputString;
 }
@@ -987,12 +987,12 @@ std::string generateInnerRecursiveBasisChangeFloat64(const unsigned int gradeMv1
         outputString += "\t\trightContractionProductHomogeneous<double>";
 
     // put the arguments
-    outputString += "(transformationMatricesInverse[" + std::to_string(gradeMv1) + "]*mv1,"
-                    + "transformationMatricesInverse[" + std::to_string(gradeMv2) + "]*mv2,tmp,"
+    outputString += "(transformationMatricesInverse<T>[" + std::to_string(gradeMv1) + "]*mv1,"
+                    + "transformationMatricesInverse<T>[" + std::to_string(gradeMv2) + "]*mv2,tmp,"
                     + std::to_string(gradeMv1) + "," + std::to_string(gradeMv2) + "," + std::to_string(gradeMv3) + ");\n";
 
     // change basis for mv3
-    outputString += "\t\tmv3 += transformationMatrices[" + std::to_string(gradeMv3) + "]*tmp;\n";
+    outputString += "\t\tmv3 += transformationMatrices<T>[" + std::to_string(gradeMv3) + "]*tmp;\n";
 
     return outputString;
 }
@@ -1394,11 +1394,11 @@ std::string recursiveGeometricProductCallToString(const unsigned int maxSize, bo
     if(changeMetricToOrtrhogonal){
         output += "                   Mvec<T> tmp;\n";
         output += "                   // geometric product from mv1 and mv2 in the orthogonal basis\n";
-        output += "                   geoProduct<T>(transformationMatricesInverse[itMv1.grade]*itMv1.vec, transformationMatricesInverse[itMv2.grade]*itMv2.vec, tmp, itMv1.grade, itMv2.grade, itMv1.grade + itMv2.grade);\n";
+        output += "                   geoProduct<T>(transformationMatricesInverse<T>[itMv1.grade]*itMv1.vec, transformationMatricesInverse<T>[itMv2.grade]*itMv2.vec, tmp, itMv1.grade, itMv2.grade, itMv1.grade + itMv2.grade);\n";
         output += "                   for(auto & itMvTmp : tmp.mvData){\n";
         output += "                       auto it = mv3.createVectorXdIfDoesNotExist(itMvTmp.grade);\n";
         output += "                       // back transform the result in the original basis\n";
-        output += "                       it->vec += transformationMatrices[itMvTmp.grade] * itMvTmp.vec;\n";
+        output += "                       it->vec += transformationMatrices<T>[itMvTmp.grade] * itMvTmp.vec;\n";
         output += "                       if(!((it->vec.array() != 0.0).any())){\n";
         output += "                           mv3.mvData.erase(it);\n                       }\n                   }\n";
 
@@ -1421,11 +1421,11 @@ std::string recursiveGeometricProductCallToStringFloat64(const unsigned int maxS
     if(changeMetricToOrtrhogonal){
         output += "                   Mvec<double> tmp;\n";
         output += "                   // geometric product from mv1 and mv2 in the orthogonal basis\n";
-        output += "                   geoProduct<double>(transformationMatricesInverse[itMv1.grade]*itMv1.vec, transformationMatricesInverse[itMv2.grade]*itMv2.vec, tmp, itMv1.grade, itMv2.grade, itMv1.grade + itMv2.grade);\n";
+        output += "                   geoProduct<double>(transformationMatricesInverse<double>[itMv1.grade]*itMv1.vec, transformationMatricesInverse<double>[itMv2.grade]*itMv2.vec, tmp, itMv1.grade, itMv2.grade, itMv1.grade + itMv2.grade);\n";
         output += "                   for(auto & itMvTmp : tmp.mvData){\n";
         output += "                       auto it = mv3.createVectorXdIfDoesNotExist(itMvTmp.grade);\n";
         output += "                       // back transform the result in the original basis\n";
-        output += "                       it->vec += transformationMatrices[itMvTmp.grade] * itMvTmp.vec;\n";
+        output += "                       it->vec += transformationMatrices<double>[itMvTmp.grade] * itMvTmp.vec;\n";
         output += "                       if(!((it->vec.array() != 0.0).any())){\n";
         output += "                           mv3.mvData.erase(it);\n                       }\n                   }\n";
     }else{
