@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.9)
 
-project(cmake_project_name_original_case)
+project(cmake_project_name_original_case CXX)
 set(CMAKE_BUILD_TYPE Release)
 
 # include eigen
@@ -34,7 +34,7 @@ set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-elide-constructors") # force the compilor to use our move 'copy constructor'
 
 # files to compile
-file(GLOB_RECURSE source_files src/cmake_project_name_original_case/*.cpp)
+set(source_files src/cmake_project_name_original_case/Mvec.cpp)
 file(GLOB_RECURSE header_files src/cmake_project_name_original_case/*.hpp)
 
 # display info
