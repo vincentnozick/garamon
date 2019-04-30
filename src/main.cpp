@@ -336,6 +336,7 @@ int main(int argc, char** argv){
     substitute(data,"cmake_project_name_sample", metaData.namespaceName + "_sample");
     substitute(data,"cmake_project_name_upper_case", upperCaseNamespace);
     substitute(data,"cmake_project_name_original_case", metaData.namespaceName);
+    substitute(data,"cmake_project_name_original_case_py", metaData.namespaceName + "_py");
     writeFile(data, sampleDirectory + "/CMakeLists.txt");
 
 
@@ -353,6 +354,31 @@ int main(int argc, char** argv){
     substitute(data,"project_first_vector_basis", metaData.basisVectorName[0]);
     substitute(data,"project_second_vector_basis", metaData.basisVectorName[1]);
     writeFile(data, srcSampleDirectory + "/main.cpp");
+
+    // PythonBindings.cpp
+    data = readFile(templateDataDirectory + "PythonBindings.cpp");
+    substitute(data,"project_namespace", metaData.namespaceName);
+    substitute(data,"project_namespace_py", metaData.namespaceName + "_py");
+    substitute(data,"project_static_multivector_one_component_python", multivectorComponentBuilder(metaData,staticOneComponentMultivectorPrototypePython())); // i.e. Mvec a = 2 * cga::e12()
+    if(metaData.fullRankMetric == true){
+        // keep the dual and other functions
+        substitute(data,"project_singular_metric_comment_begin", "");
+        substitute(data,"project_singular_metric_comment_end", "");
+    }else{
+        // comment the dual and other functions
+        substitute(data,"project_singular_metric_comment_begin", singularMetricCommentBegin());
+        substitute(data,"project_singular_metric_comment_end", singularMetricCommentEnd());       
+    }
+    substitute(data,"project_basis_vector_index", multivectorComponentBuilder(metaData,
+    "m.attr(\"Eproject_name_blade\") = project_xor_index_blade;\n"
+    ));
+    writeFile(data, srcDirectory + "/PythonBindings.cpp");
+
+    // setup.py
+    data = readFile(templateDataDirectory + "setup.py");
+    substitute(data,"project_namespace_py", metaData.namespaceName + "_py");
+    writeFile(data, projectDirectory + "/setup.py");
+
 
 
     return EXIT_SUCCESS;

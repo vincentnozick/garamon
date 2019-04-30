@@ -25,8 +25,8 @@ int main(){
     std::cout << "outer product     : " << (mv1 ^ mv2) << std::endl;
     std::cout << "inner product     : " << (mv1 | mv2) << std::endl;
     std::cout << "geometric product : " << (mv1 * mv2) << std::endl;
-    std::cout << "left contraction : " << (mv1 < mv2) << std::endl;
-    std::cout << "right contraction: " << (mv1 > mv2) << std::endl;
+    std::cout << "left contraction  : " << (mv1 < mv2) << std::endl;
+    std::cout << "right contraction : " << (mv1 > mv2) << std::endl;
     std::cout << std::endl;
 
     // some tools

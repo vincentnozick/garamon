@@ -13,6 +13,12 @@ else()
     include_directories("/usr/include/eigen3") # manually specify the include location
 endif()
 
+option(BUILD_PYTHON "Build Python library" OFF)
+if (BUILD_PYTHON)
+    find_package(pybind11 REQUIRED)
+endif()
+
+
 # call the CMakeLists.txt to make the documentation (Doxygen)
 # > 'make html' to generate the documentation
 add_subdirectory(doc)
@@ -47,6 +53,15 @@ if (MSVC)
 else()
 	add_library(cmake_project_name_original_case SHARED ${source_files} ${header_files})
 endif()
+
+if (BUILD_PYTHON)
+    pybind11_add_module(cmake_project_name_original_case_py 
+        src/cmake_project_name_original_case/PythonBindings.cpp
+    )
+    target_link_libraries(cmake_project_name_original_case_py PRIVATE 
+        cmake_project_name_original_case)
+endif()
+
 
 # include directory path
 include_directories(src)

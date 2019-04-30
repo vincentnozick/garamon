@@ -283,8 +283,11 @@ std::string loadAllDualCoefficientsArray(const std::vector<int> & sizeDualCoeffi
 
 
 
-
-
+// prototype of the methods namespace::e12() in Python
+std::string staticOneComponentMultivectorPrototypePython(){
+    std::string res = "m.def(\"eproject_name_blade\", &eproject_name_blade<double>);\n";
+    return res;
+}
 
 
 

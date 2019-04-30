@@ -50,6 +50,8 @@ std::string loadAllDualCoefficientsArray(const std::vector<int> & sizeDualCoeffi
 
 std::string dualPermutationToString(const std::vector<double>& basisChangesComponents);
 
+std::string staticOneComponentMultivectorPrototypePython();
+
 std::string staticOneComponentMultivectorPrototype();
 
 std::string oneComponentMultivectorPrototype();
