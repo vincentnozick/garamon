@@ -19,10 +19,10 @@
 #include <regex>       // for substitute
 
 
-#if defined(_WIN32) && defined(__MINGW32__)
+#if defined(_WIN32) && (defined(__MINGW32__) || defined(_MSC_BUILD))
 	#include <direct.h>
 	#include <io.h>
-#endif // __WINDOWS Mingw compiler__
+#endif // __WINDOWS Mingw or MSVC compiler__
 
 
 void makeDirectory(const std::string &dirName) {

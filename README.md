@@ -22,6 +22,7 @@ Install
     * clang 4
     * apple-clang 900.0.39.2
     * MinGW 7.2.0
+	* MSVC 19.14.26430.0 (Visual Studio 15.7.3)
 
 ## Install for Linux-Mac from the terminal
     * Check the dependencies
@@ -44,6 +45,17 @@ Install
 		* 'mingw32-make'
         * the binary executable is on the 'build' directory
         * (optional and not required) 'mingw32-make install'
+
+## Install for Windows with Visual Studio 15 2017 Win64, using Windows Power Shell or cmd
+    * Check the dependencies
+    * From Garamon Generator root directory
+        * 'mkdir build'
+        * 'cd build'
+        * 'cmake -G "Visual Studio 15 2017 Win64" ..'
+        * check that the cmake output has no errors
+		* open the file garamon_generator.sln with Visual Studio
+		* generate the project "ALL_BUILD" with Release configuration
+        * the binary executable is on the 'Release' directory
 
 
 Usage

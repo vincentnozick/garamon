@@ -22,6 +22,11 @@
 #include <Eigen/Dense> // use the metric which is dense
 #include <Eigen/Sparse> // use the transformation matrices which are sparse
 #include <iostream>
+#if defined(_MSC_BUILD)
+	#ifndef __builtin_popcount
+		#define __builtin_popcount __popcnt
+	#endif
+#endif // __WINDOWS MSVC compiler__
 
 
 /// In the computation of mv3 = mv1^mv2, this represents a quadruplet containing the indices of mv1,mv2,mv3 and a coefficient in a product between two blades.

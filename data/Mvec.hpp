@@ -472,7 +472,9 @@ namespace project_namespace{
         /// \param grade : grade of the component to enable
         /// \param index : index of the parameter in the k-vector (k = grade)
         inline Mvec componentToOne(const unsigned int grade, const int index){
-            Kvec<T> kvec = {.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]),.grade=grade};
+            Kvec<T> kvec;
+			kvec.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]);
+			kvec.grade=grade;
             kvec.vec[index] = T(1);
             Mvec mv1;
             mv1.mvData.push_back(kvec);
@@ -501,7 +503,9 @@ namespace project_namespace{
                         return it;
 
                     // if grade exceed, create it and inster it before the current element
-                    Kvec<T> kvec = {.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]),.grade=grade};
+                    Kvec<T> kvec;
+					kvec.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]);
+					kvec.grade=grade;
                     auto it2 = mvData.insert(it,kvec);
                     gradeBitmap |= 1 << (grade);
                     return it2;
@@ -509,7 +513,9 @@ namespace project_namespace{
             }
 
             // if the searched element should be added at the end, add it
-            Kvec<T> kvec = {.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]),.grade=grade};
+            Kvec<T> kvec;
+			kvec.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]);
+			kvec.grade=grade;
             auto it2 = mvData.insert(mvData.end(),kvec);
             gradeBitmap |= 1 << (grade);
             return it2;
@@ -741,7 +747,10 @@ project_multivector_one_component
     Mvec<T>::Mvec(const U val) {
         if(val != U(0)) {
             gradeBitmap = 1;
-            mvData.push_back({.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>(1),.grade=0});
+            Kvec<T> kvec;
+            kvec.vec =Eigen::Matrix<T, Eigen::Dynamic, 1>(1);
+            kvec.grade =0;
+            mvData.push_back(kvec);
             mvData.begin()->vec.coeffRef(0) = val;
         }
     }

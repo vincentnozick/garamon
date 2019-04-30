@@ -18,7 +18,11 @@ endif()
 add_subdirectory(doc)
 
 # compilation flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++14 -Wno-return-local-addr")
+if (MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++14")
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++14 -Wno-return-local-addr")
+endif()
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-report ") # comilation profiling:  -Q -ftime-report
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-elide-constructors") # force the compilor to use our move 'copy constructor'
@@ -38,8 +42,11 @@ foreach(src_file ${header_files})
 endforeach()
 
 # generate a library
-add_library(cmake_project_name_original_case SHARED ${source_files} ${header_files})
-#add_library(cmake_project_name_original_case STATIC ${source_files} ${header_files})
+if (MSVC)
+	add_library(cmake_project_name_original_case STATIC ${source_files} ${header_files})
+else()
+	add_library(cmake_project_name_original_case SHARED ${source_files} ${header_files})
+endif()
 
 # include directory path
 include_directories(src)
