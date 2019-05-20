@@ -385,7 +385,7 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
                                          double scaleInversePseudoScalar,
                                          std::string srcDirectory,
                                          std::string& fastDualComponents){
-    std::string outputStringPermutations="    std::array<std::vector<unsigned int>, " + std::to_string(dimension+1) + "> dualPermutations = {{ ";
+    std::string outputStringPermutations="    const std::array<std::vector<unsigned int>, " + std::to_string(dimension+1) + "> dualPermutations = {{ ";
 
     std::string outputStringCoefficients="\n    const std::array<Eigen::Matrix<double, Eigen::Dynamic,1>, "+std::to_string(dimension+1)+"> dualCoefficients = loadFastDualArray<double>(); /*!< array containing some basis change coefficients required to compute the dual */\n    "; // replace by load
 
