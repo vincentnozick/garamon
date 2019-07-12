@@ -204,6 +204,11 @@ MetaData::MetaData(const std::string &filename):inputMetricDiagonal(false), iden
 
 bool MetaData::metricDiagonalization() {
 
+	// compute the metric rank
+	if (getRank(metric) == dimension)
+		fullRankMetric = true;
+	else fullRankMetric = false;
+
     // check if the metric is already diagonal
     if(isMatrixDiagonal(metric, epsilon)){
         diagonalMetric = metric.diagonal();
@@ -213,10 +218,6 @@ bool MetaData::metricDiagonalization() {
         return true;
     }
 
-    // compute the metric rank
-    if(getRank(metric) == dimension)
-        fullRankMetric = true;
-    else fullRankMetric = false;
 
     // ckeck if the metric is a permutation of a diagonal matrix (for fast dual)
     inputMetricPermutationOfDiagonal = isMatrixPermutationOfDiagonal(metric, epsilon);
