@@ -66,3 +66,24 @@ Notes
 
 ## Contact
     * vincent.nozick (at) u-pem.fr
+
+## Reference
+If you use Garamon for research purpose, please cite the following paper:
+
+	@Article{breuils_garamon_2019,
+	author="Breuils, St{\'e}phane and Nozick, Vincent and Fuchs, Laurent",
+	title="Garamon: A Geometric Algebra Library Generator",
+	journal="Advances in Applied Clifford Algebras",
+	year="2019",
+	month="Jul",
+	day="22",
+	volume="29",
+	number="4",
+	pages="69",
+	issn="1661-4909",
+	doi="10.1007/s00006-019-0987-7",
+	url="https://doi.org/10.1007/s00006-019-0987-7"
+	}
+
+
+

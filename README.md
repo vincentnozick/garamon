@@ -79,7 +79,6 @@ Notes
 ## Contact
     * vincent.nozick (at) u-pem.fr
 
-
 ## Reference
 If you use Garamon for research purpose, please cite the following paper:
 
