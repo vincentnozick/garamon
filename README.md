@@ -74,7 +74,7 @@ Notes
 
 ## Authors
     * Vincent Nozick (Universite Paris-Est Marne-la-Vallee, France)
-    * Stephane Breuils (Universite Paris-Est Marne-la-Vallee, France)
+    * Stephane Breuils (National Institute of Informatics, Japan)
 
 ## Contact
     * vincent.nozick (at) u-pem.fr
