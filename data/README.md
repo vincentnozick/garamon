@@ -16,11 +16,12 @@ Install
     * 'Cmake 3.10' or more
     * (optinal) 'Doxygen' if you want a documentation page
 
-## Compilator tested
+## Compiler tested
     * gcc 5.4.0
     * clang 4
     * apple-clang 900.0.39.2
     * MinGW 7.2.0
+    * MSVC 19.14.26430.0 (Visual Studio 15.7.3)
 
 ## Install for Linux-Mac from the terminal
     * Check the dependencies

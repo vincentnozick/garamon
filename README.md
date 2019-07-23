@@ -17,7 +17,7 @@ Install
     * 'Cmake 3.10' or more
     * (optional) 'Doxygen' if you want documentation pages
 
-## Compilator tested
+## Compiler tested
     * gcc 5.4.0
     * clang 4
     * apple-clang 900.0.39.2
