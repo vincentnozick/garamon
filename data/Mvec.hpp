@@ -609,7 +609,7 @@ namespace project_namespace{
         /// \param grade - grade of the considered kvector
         /// \return true if multivector has grade component, false else
         inline bool isGrade(const unsigned int grade) const{
-            return ( (gradeBitmap & (1<<(grade+1))) != 0 );
+            return ( (gradeBitmap & (1<<grade)) != 0 );
         }
 
         /// \brief partially or completely erase the content of a multivector
