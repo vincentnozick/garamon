@@ -74,6 +74,10 @@ project_pseudo_scalar_inverse
     const std::string metric =
 project_metric; /*!< metric / quadratic form of the algebra (inner product between basis vectors) */
 
+
+    template<class T>
+    const T zero = 0;
+
     const unsigned int scalar = 0;
 project_basis_vector_index    /*!< defines the constants for the cga */
 

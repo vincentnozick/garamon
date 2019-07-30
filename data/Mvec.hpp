@@ -428,15 +428,13 @@ namespace project_namespace{
                     if(it->grade == grade)
                         return it->vec[idxHomogeneous];
 
-                    // if grade exceed, return a reference on ... humm ...
-                    T val = T(0);
-                    return val;
+                    // if grade exceed, return a reference on zero
+                    return zero<T>;
                 }
             }
 
-            // if the searched element should be added at the end, humm ...
-            T val = T(0);   /// \todo find an elegant way to correct this
-            return val;
+            // searched element not found
+            return zero<T>;
         }
 
 /*
