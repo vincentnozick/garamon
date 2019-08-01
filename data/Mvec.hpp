@@ -604,6 +604,7 @@ namespace project_namespace{
         /// \param grade - grade of the considered kvector
         /// \return true if multivector has grade component, false else
         inline bool isGrade(const unsigned int grade) const{
+            if((grade == 0) && isEmpty()) return true;
             return ( (gradeBitmap & (1<<grade)) != 0 );
         }
 

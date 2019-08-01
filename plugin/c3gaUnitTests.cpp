@@ -408,6 +408,42 @@ int gradeTest(){
     return EXIT_SUCCESS;
 }
 
+int isGradeTest(){
+
+    c3ga::Mvec<double> a;
+    if(a.isGrade(0) == false) return EXIT_FAILURE;
+    if(a.isGrade(1) == true)  return EXIT_FAILURE;
+
+    a[c3ga::scalar] =  5.0;
+    if(a.isGrade(0) == false) return EXIT_FAILURE;
+    if(a.isGrade(1) == true)  return EXIT_FAILURE;
+
+    a[c3ga::E1] =  5.0;
+    a[c3ga::E3] = -6.0;
+    if(a.isGrade(1) == false) return EXIT_FAILURE;
+    if(a.isGrade(2) == true)  return EXIT_FAILURE;
+
+    a[c3ga::E12] =  5.0;
+    a[c3ga::E03] = -6.0;
+    if(a.isGrade(2) == false) return EXIT_FAILURE;
+    if(a.isGrade(3) == true)  return EXIT_FAILURE;
+
+    a[c3ga::E12i] =  5.0;
+    a[c3ga::E013] = -6.0;
+    if(a.isGrade(3) == false) return EXIT_FAILURE;
+    if(a.isGrade(4) == true)  return EXIT_FAILURE;
+
+    a[c3ga::E012i] =  5.0;
+    a[c3ga::E0123] = -6.0;
+    if(a.isGrade(4) == false) return EXIT_FAILURE;
+    if(a.isGrade(5) == true)  return EXIT_FAILURE;
+
+    a[c3ga::E0123i] = 5.0;
+    if(a.isGrade(5) == false) return EXIT_FAILURE;
+
+    return EXIT_SUCCESS;
+}
+
 int accessOperatorTest(){
 
     c3ga::Mvec<double> a;
@@ -2200,7 +2236,7 @@ int main(){
     std::cout << "scalar product      : " << success(scalarProductTest()) << std::endl;
     std::cout << "Hestenes product    : " << success(hestenesProductTest()) << std::endl;
     std::cout << "mv.grade()          : " << success(gradeTest()) << std::endl;
-    std::cout << "mv.grade()          : " << success(gradeTest()) << std::endl;
+    std::cout << "mv.isGrade()        : " << success(isGradeTest()) << std::endl;
     std::cout << "mv.grades()         : " << success(gradesTest()) << std::endl;
     std::cout << "mv1.sameGrade(mv2)  : " << success(sameGradesTest()) << std::endl;
     std::cout << "isHomogeneous()     : " << success(isHomogeneousTest()) << std::endl;
