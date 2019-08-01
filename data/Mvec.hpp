@@ -262,7 +262,6 @@ namespace project_namespace{
         /// \param mv2 - a primal form of a multivector; the object multivector will be dualized during the wedge with the calling multivector.
         /// \return a multivector.
         Mvec<T> outerDualDual(const Mvec<T> &mv2) const;
-
     project_singular_metric_comment_end
         
 
@@ -323,13 +322,12 @@ namespace project_namespace{
         template<typename U>
         friend Mvec<U> operator~(const Mvec<U> &mv);
 
-    project_singular_metric_comment_begin
-        /// \brief the dual of a k-vector is defined as $A_k^* = A_k \\lcont I_n^{-1}$, for a multivector, we just dualize all its components.
+        /// \brief the dual of a k-vector is defined as $A_k^* = A_k \\lcont I_n^{-1}$, for a multivector, we just dualize all its components. If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
         /// \param mv - a multivector
         /// \return the dual of mv
         template<typename U>
         friend Mvec<U> operator!(const Mvec<U> &mv);
-    project_singular_metric_comment_end
+
         /// \brief boolean operator that tests the equality between two Mvec
         /// \param mv2 - second operand of type Mvec
         /// \return whether two Mvec have the same coefficients
@@ -558,11 +556,10 @@ namespace project_namespace{
             return ( this->reverse() | (*this) );
         };
 
-    project_singular_metric_comment_begin
-        /// \brief compute the dual of a multivector (i.e mv* = reverse(mv) * Iinv)
+        /// \brief compute the dual of a multivector (i.e mv* = reverse(mv) * Iinv). If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
         /// \return - the dual of the multivector
         Mvec<T> dual() const;
-    project_singular_metric_comment_end
+
         /// \brief compute the reverse of a multivector
         /// \return - the reverse of the multivector
         Mvec<T> reverse() const;
@@ -1297,12 +1294,10 @@ project_singular_metric_comment_end
     };
 
 
-    project_singular_metric_comment_begin
     template<typename U>
     Mvec<U> operator!(const Mvec<U> &mv) {
         return mv.dual();
     }
-project_singular_metric_comment_end
 
     /// \brief defines the left contraction between two multivectors
     /// \param mv1 - a multivector
@@ -1344,7 +1339,6 @@ project_singular_metric_comment_begin
     }
 project_singular_metric_comment_end
 
-project_singular_metric_comment_begin
     // compute the dual of a multivector (i.e mv* = mv.reverse() * Iinv)
     template<typename T>
     Mvec<T> Mvec<T>::dual() const {
@@ -1368,7 +1362,6 @@ project_singular_metric_comment_begin
         }
         return mvResult;
     };
-project_singular_metric_comment_end
 
     // \brief compute the reverse of a multivector
     // \return - the reverse of the multivector

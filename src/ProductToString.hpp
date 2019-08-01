@@ -79,6 +79,11 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
                                          std::string srcDirectory,
                                          std::string& fastDualComponents);
 
+
+std::string fastRightComplementUtilities(const unsigned int dimension, const ProductTools &product, const std::string &srcDirectory,
+                                         std::string &fastDualComponents);
+
+
 std::string primalWedgeDualUtilities(const unsigned int dimension, const ProductTools& product,
                                      const Eigen::VectorXd &diagonalMetric,
                                      double scaleInversePseudoScalar);

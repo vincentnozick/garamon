@@ -244,7 +244,7 @@ std::string loadAllDualCoefficientsArray(const std::vector<int> & sizeDualCoeffi
     outputString +="\t\tstd::array<Eigen::Matrix<T, Eigen::Dynamic,1>,"+ std::to_string(sizeDualCoefficientsArray.size())+"> dualArrayCoefficients;\n";
 
     // put the string containing the coefficients of the dual
-    outputString += "\t\tstd::string stringDualCoefficients=\""+stringDualCoefficientsComponents+"\";\n";
+    outputString += "\t\tstd::string stringDualCoefficients=\"" + stringDualCoefficientsComponents + "\";\n";
     outputString += "\t\tconst std::vector<T> vectorDualComponents = decodeStringOfDualCoefToVecOfT<T>(stringDualCoefficients);\n";
 
     std::string nameComponentsDataStructure = "vectorDualComponents";
@@ -401,7 +401,7 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
 
         //outputStringCoefficients+="[]()->Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>{Eigen::Matrix<T, Eigen::Dynamic, 1> tmp("+std::to_string(bin_coeff(dimension,grade))+");tmp<<";
 
-        std::list<productComponent<double>> listProductInnerProduct =product.generateExplicitInnerProductList(
+        std::list<productComponent<double>> listProductInnerProduct = product.generateExplicitInnerProductList(
                 grade,
                 dimension,
                 inverseTransformationMatrices[grade],
@@ -430,7 +430,7 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
     }
 
     // last element correspond to permutation required for the pseudo scalar (grade = dimension)
-    std::list<productComponent<double>> listProductInnerProduct =product.generateExplicitInnerProductList(
+    std::list<productComponent<double>> listProductInnerProduct = product.generateExplicitInnerProductList(
             dimension,
             dimension,
             inverseTransformationMatrices[dimension],
@@ -462,6 +462,80 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
 
     return outputStringPermutations + outputStringCoefficients;
 }
+
+
+
+// defines the array of permutations and coefficients required in the computation of the fast right complement (dual for degenerated metrics)
+// more precisely, compute the right component change sign ans store it in 'fastDualComponents', and return the source code corresponding to the permutations.
+std::string fastRightComplementUtilities(const unsigned int dimension,
+                                         const ProductTools &product,
+                                         const std::string &srcDirectory,
+                                         std::string &fastDualComponents) {
+
+    // declare the permutation array
+    std::string outputStringPermutations = "    std::array<std::vector<unsigned int>, " + std::to_string(dimension+1) + "> dualPermutations = {{ ";
+
+    // declare the right complement coefficient (+/-1) array
+    std::vector<double> dualCoefficientsComponents;
+
+    // for each possible grade from 0 to dimension do
+    for(unsigned int grade=0; grade<=dimension; ++grade){
+
+        // add a new element (scalar or pseudoscalar)
+        if( (grade==0) || (grade==dimension) ){
+            outputStringPermutations += "{0}";
+            dualCoefficientsComponents.push_back(1.0);
+            if(grade == 0) outputStringPermutations += ", ";
+        } else{
+
+            // start a grade entry
+            outputStringPermutations += "{{";
+
+            // for all element of the considered grade
+            for(unsigned int element=0; element<bin_coeff(dimension, grade); ++element){
+
+                // get the xor (binray) reresentation of the basis
+                unsigned int mvXorIndex = product.getXorIndex(grade,element);
+
+                // compute its right compement
+                unsigned int rightComplementXorIndex = mvXorIndex ^ ( (1 << dimension) -1 );
+
+                // compute the sign change
+                double sign = ProductTools::outerProductSign(mvXorIndex,rightComplementXorIndex);
+
+                // add the sign to the sign array
+                dualCoefficientsComponents.push_back(sign);
+
+                // find its position in the homogeneous multivector representation
+                unsigned int rigthComponentPos = product.getHomogeneousIndex(rightComplementXorIndex);
+
+                // add the permutation index in the output string
+                outputStringPermutations += std::to_string(rigthComponentPos);
+                if(element < bin_coeff(dimension, grade)-1)
+                    outputStringPermutations += ",";
+            }
+
+            // close the grade entry
+            outputStringPermutations += "}}, ";
+        }
+    }
+
+    // close array
+    outputStringPermutations += " }}; /*!< array referring to some permutations required to compute the right complement. */\n";
+
+    // copy the sign change array into a string (passed in argument)
+    for(unsigned int i=0;i<dualCoefficientsComponents.size();++i){
+        fastDualComponents+= std::to_string(dualCoefficientsComponents[i])+" ";
+    }
+
+    // set the instruction to load the Eigen compatible sign change source code
+    std::string outputStringCoefficients = "\n"
+                                           "    const std::array<Eigen::Matrix<double, Eigen::Dynamic,1>, " + std::to_string(dimension+1) + "> dualCoefficients = loadFastDualArray<double>(); /*!< array containing the coefficients needed to compute the dual */ \n    ";
+
+    // return the source code including the permutation array and the laoding sign change instruction
+    return outputStringPermutations + outputStringCoefficients;
+}
+
 
 
 

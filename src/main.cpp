@@ -115,7 +115,7 @@ int main(int argc, char** argv){
     std::cout << "  data structure configuration ..." << std::endl;
     ProductTools algebraConfig(metaData.dimension);
 
-    // bring some informations on the grade, binomial coefficients and the index of any homogeneous multivector in the global multivector structure 
+    // bring some information on the grade, binomial coefficients and the index of any homogeneous multivector in the global multivector structure
     std::vector<int> perGradeStartingIndex = {0};
     computePerGradeStartingIndex(metaData.dimension, perGradeStartingIndex, 0, 0);
 
@@ -166,8 +166,8 @@ int main(int argc, char** argv){
     substitute(data,"project_array_xorIndexConversion", xorIndexToGradeAndHomogeneousIndexArraysToString(metaData.dimension, algebraConfig));
     // the following string will contain the components of the fast dual array
     std::string fastDualComponents ="";
-    if(metaData.fullRankMetric == false){ // no dual = do not load anything about dual
-        substitute(data,"project_dual_arrays_permutations_and_coefficients", "");
+    if(metaData.fullRankMetric == false){ // no dual = replace by right complement
+        substitute(data,"project_dual_arrays_permutations_and_coefficients", fastRightComplementUtilities(metaData.dimension,algebraConfig,srcDirectory,fastDualComponents));
         substitute(data,"project_dual_arrays_recursive_coefficients", "");
         substitute(data,"project_pseudo_scalar_inverse", "");
     }else{
@@ -195,11 +195,12 @@ int main(int argc, char** argv){
     data = readFile(templateDataDirectory + "DualCoefficients.hpp");
     substitute(data,"project_inclusion_guard", upperCaseNamespace + "_DUALCOEFFICIENTS_HPP__");
     substitute(data,"project_namespace", metaData.namespaceName);
-    if(metaData.fullRankMetric == false){ // no dual
-        substitute(data,"project_fill_dual_array","");
-    }else{
-        substitute(data,"project_fill_dual_array", loadAllDualCoefficientsArray(perGradeStartingIndex, fastDualComponents));
-    }
+    //if(metaData.fullRankMetric == false){ // no dual
+    //    substitute(data,"project_fill_dual_array","");
+    //}else{
+    //    substitute(data,"project_fill_dual_array", loadAllDualCoefficientsArray(perGradeStartingIndex, fastDualComponents));
+    // }
+    substitute(data,"project_fill_dual_array", loadAllDualCoefficientsArray(perGradeStartingIndex, fastDualComponents));
     writeFile(data, srcDirectory + "/DualCoefficients.hpp");
 
 

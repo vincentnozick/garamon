@@ -56,6 +56,7 @@ std::vector<unsigned int> getSetOfCombinationsFromXorIndexation(const int dim, c
 // TO REMOVE if redondant with a similiar function in ProductTools.cpp
 // generate the sequence of all possible elements of a considered grade
 // e.g. generateCombinations(4,2) will result to the sequence (1,2), (1,3), (1,4), (2,3), (2,4), (3,4)
+// here 'n' is the dimension and 'r' is the considered grade
 std::vector<std::vector<unsigned int> > generateCombinations(const unsigned int n, const unsigned int r);
 
 
