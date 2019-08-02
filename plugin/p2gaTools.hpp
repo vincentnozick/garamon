@@ -1,5 +1,5 @@
 // Copyright (c) 2018 by University Paris-Est Marne-la-Vallee
-// cgaTools.hpp
+// p2gaTools.hpp
 // Authors: Stephane Breuils and Vincent Nozick
 // Contact: vincent.nozick@u-pem.fr
 
@@ -36,8 +36,8 @@
 namespace p2ga {
 
     /// \brief build a point from 2 components
-    /// \param x vector component related to e1
-    /// \param y vector component related to e2
+    /// \param x vector component related to e02
+    /// \param y vector component related to e01
     /// \return a multivector corresponding to a point p = e12 - x e02 + y e01
     template<typename T>
     p2ga::Mvec<T> point(const T &x, const T &y) {
@@ -61,12 +61,12 @@ namespace p2ga {
         std::uniform_real_distribution<T> uniformRealDistribution(-1.0,1.0);
 
         // build the point
-        return point(uniformRealDistribution(generator), uniformRealDistribution(generator));
+        return point<T>(uniformRealDistribution(generator), uniformRealDistribution(generator));
     }
 
     /// \brief build a vector (ideal point / point at infinity) from 2 components
-    /// \param x vector component related to e1
-    /// \param y vector component related to e2
+    /// \param x vector component related to e02
+    /// \param y vector component related to e01
     /// \return a multivector corresponding to a point p = - x e02 + y e01
     template<typename T>
     p2ga::Mvec<T> vector(const T &x, const T &y) {
