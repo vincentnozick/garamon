@@ -3,7 +3,7 @@
 // Authors: Stephane Breuils and Vincent Nozick
 // Contact: vincent.nozick@u-pem.fr
 
-/// \file cgaFitting.hpp
+/// \file c3gaTools.hpp
 /// \author Stephane Breuils, Vincent Nozick
 /// \brief some useful functions when using conformal geometric algebra of R^3. Use this file if you generated the lib using the "c3ga.conf" configuration file.
 
