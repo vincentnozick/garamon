@@ -1,7 +1,5 @@
 #include <iostream>
-#include <cstdlib>
 #include <project_namespace/Mvec.hpp>
-
 
 
 int main(){
@@ -35,5 +33,5 @@ int main(){
     mv1.clear();
     if(mv1.isEmpty()) std::cout << "mv1 is empty: ok" << std::endl;
 
-    return EXIT_SUCCESS;
+    return 0;
 }
