@@ -1,9 +1,9 @@
 // Copyright (c) 2018 by University Paris-Est Marne-la-Vallee
 // p2gaTools.hpp
-// Authors: Stephane Breuils and Vincent Nozick
+// Authors: Vincent Nozick and Stephane Breuils
 // Contact: vincent.nozick@u-pem.fr
 
-// These tools are dedicated to the dual version of R(2,0,1), meaning that the vectors are lines and bivectors are points.
+// These tools are dedicated to the dual version of R(2,0,1), meaning that the 1-vectors are lines and bivectors are points.
 // For more details :
 //
 // Charles Gunn, Projective geometric algebra: A new framework for doing euclidean geometry, 2019.
@@ -19,14 +19,15 @@
 
 
 // Anti-doublon
-#ifndef P2GA_TOOLS_HPP__
-#define P2GA_TOOLS_HPP__
+#ifndef GARAMON_P2GA_TOOLS_HPP__
+#define GARAMON_P2GA_TOOLS_HPP__
 #pragma once
 
 
 // External includes
 #include <vector>
 #include <random>
+#include <chrono>
 
 // Internal includes
 #include <p2ga/Mvec.hpp>
@@ -49,19 +50,33 @@ namespace p2ga {
         return mv;
     }
 
+    // anonym namespace for a random generator
+    namespace {
+        std::default_random_engine randomGenerator(0);
+    }
+
+    /// \brief reset the random generator seed
+    /// \param seed used to initialize the random generator
+    void randomSeed(const unsigned int seed){
+        randomGenerator = std::default_random_engine(seed);
+    }
+
+    /// \brief reset the random generator seed using the time
+    void randomSeed(){
+        randomSeed(std::chrono::system_clock::now().time_since_epoch().count());
+    }
+
     /// \brief build a random point with Euclidean coordinates ranging in [-1,1]
     /// \param seed optional random seem.
     /// \return a multivector corresponding to a point p = e12 + x e02 + y e01.
     template<typename T>
-    p2ga::Mvec<T> randomPoint(const unsigned seed=0){
-        // generator
-        std::default_random_engine generator(seed);
+    p2ga::Mvec<T> randomPoint(){
 
         // uniform distribution over [-1,1]
         std::uniform_real_distribution<T> uniformRealDistribution(-1.0,1.0);
 
-        // build the point
-        return point<T>(uniformRealDistribution(generator), uniformRealDistribution(generator));
+        // build the random point
+        return point<T>(uniformRealDistribution(randomGenerator), uniformRealDistribution(randomGenerator));
     }
 
     /// \brief build a vector (ideal point / point at infinity) from 2 components
