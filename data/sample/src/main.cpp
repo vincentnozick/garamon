@@ -1,6 +1,7 @@
 #include <iostream>
 #include <project_namespace/Mvec.hpp>
 
+using namespace project_namespace;
 
 int main(){
 
@@ -8,15 +9,15 @@ int main(){
     std::cout << "metric : \n" << project_namespace::metric << std::endl;
 
     // accessor
-    project_namespace::Mvec<double> mv1;
-    mv1[project_namespace::scalar] = 1.0;
-    mv1[project_namespace::Eproject_first_vector_basis] = 42.0;
+    Mvec<double> mv1;
+    mv1[scalar] = 1.0;
+    mv1[Eproject_first_vector_basis] = 42.0;
     std::cout << "mv1 : " << mv1 << std::endl;
 
-    project_namespace::Mvec<double> mv2;
-    mv2[project_namespace::Eproject_first_vector_basis] = 1.0;
-    mv2[project_namespace::Eproject_second_vector_basis] = 2.0;
-    mv2 += project_namespace::I<double>() + 2*project_namespace::eproject_first_vector_basisproject_second_vector_basis<double>();
+    Mvec<double> mv2;
+    mv2[Eproject_first_vector_basis] = 1.0;
+    mv2[Eproject_second_vector_basis] = 2.0;
+    mv2 += I<double>() + 2*eproject_first_vector_basisproject_second_vector_basis<double>();
     std::cout << "mv2 : " << mv2 << std::endl << std::endl;
 
     // some products
