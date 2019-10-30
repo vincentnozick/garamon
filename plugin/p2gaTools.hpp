@@ -50,7 +50,7 @@ namespace p2ga {
         return mv;
     }
 
-    // anonym namespace for a random generator
+    // anonymous namespace for a random generator
     namespace {
         std::default_random_engine randomGenerator(0);
     }
