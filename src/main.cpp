@@ -98,6 +98,8 @@ int main(int argc, char** argv){
     // add the documentation Doxyfile-html.cmake
     data = readFile(templateDataDirectory + "doc/Doxyfile-html.cmake");
     substitute(data,"cmake_project_name_original_case", metaData.namespaceName);
+    if(metaData.dimension > 10) substitute(data,"cmake_project_ignore_constant_h", "*Constants.hpp");
+    else substitute(data,"cmake_project_ignore_constant_h", "");
     writeFile(data, docDirectory + "/Doxyfile-html.cmake");
 
 

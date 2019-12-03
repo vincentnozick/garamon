@@ -625,13 +625,12 @@ namespace project_namespace{
         }
 
         /// \brief inplace simplify the multivector such that all the values with a magnitude lower than a epsilon in the Mv are set to 0.
-        /// \param epsilon - threshold, with default value the epsilon of the float/double/long double type from numeric_limits
+        /// \param epsilon - threshold, with default value the epsilon of the float/double/long double type from numeric_limits.
         void roundZero(const T epsilon = std::numeric_limits<T>::epsilon());
 
-        /// \brief Specify if two multivectors have the same grade
-        /// \param mv1 - first multivector
-        /// \param mv2 - second multivector
-        /// \return true if the two multivectors have the same grade, else return false
+        /// \brief Specify if two multivectors have the same grade.
+        /// \param mv - multivector to compare with.
+        /// \return true if the two multivectors have the same grade, else return false.
         inline bool sameGrade(const Mvec<T>& mv) const{
             return grade() == mv.grade();
         }
