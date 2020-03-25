@@ -114,7 +114,7 @@ namespace c3ga{
 	/// \return a normal vector (e1,e2,e3) with L2 norm = 1 
     template<typename T>
     c3ga::Mvec<T> surfaceNormal(c3ga::Mvec<T> &surface, c3ga::Mvec<T> &point){
-	    cga::Mvec<T> normal;
+	    c3ga::Mvec<T> normal;
 	    normal[c3ga::E1] = - point[c3ga::E1] * surface[c3ga::E0123] / point[c3ga::E0] + surface[c3ga::E023i];  
 	    normal[c3ga::E2] = - point[c3ga::E2] * surface[c3ga::E0123] / point[c3ga::E0] - surface[c3ga::E013i]; 
 	    normal[c3ga::E3] = - point[c3ga::E3] * surface[c3ga::E0123] / point[c3ga::E0] + surface[c3ga::E012i]; 
