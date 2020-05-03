@@ -473,7 +473,7 @@ std::string fastRightComplementUtilities(const unsigned int dimension,
                                          std::string &fastDualComponents) {
 
     // declare the permutation array
-    std::string outputStringPermutations = "    std::array<std::vector<unsigned int>, " + std::to_string(dimension+1) + "> dualPermutations = {{ ";
+    std::string outputStringPermutations = "    const std::array<std::vector<unsigned int>, " + std::to_string(dimension+1) + "> dualPermutations = {{ ";
 
     // declare the right complement coefficient (+/-1) array
     std::vector<double> dualCoefficientsComponents;
