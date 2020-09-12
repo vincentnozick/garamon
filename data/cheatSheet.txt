@@ -1,6 +1,6 @@
 #include <project_namespace/Mvec.hpp>
 
-// declaration / instanciation
+// declaration / instantiation
 project_namespace::Mvec<double> mv1;            // empty multivector
 project_namespace::Mvec<double> mv2(mv1);       // initialization from another multivector
 project_namespace::Mvec<double> mv3 = mv1;      // initialization from another multivector
