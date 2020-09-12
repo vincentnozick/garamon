@@ -57,11 +57,11 @@ public:
     // replace near zeros by zeros, near integers by integers, ...
     bool useNumericalCleanUp;
 
-    // Each mutlivector component of grade k can have a dedicated precomputed product if its cardinality (max number of element of grade k) is lower than this threshold.
+    // Each multivector component of grade k can have a dedicated precomputed product if its cardinality (max number of element of grade k) is lower than this threshold.
     // Else, the product is performed recursively (this is only for high dimensional Geometric Algebra).
     unsigned int maxDimPrecomputedProducts;
 
-    // Each mutlivector component of grade k can have a dedicated basis accessor constant (E123 in "mv[E123]=42;") if its cardinality (max number of element of grade k) is lower than this threshold.
+    // Each multivector component of grade k can have a dedicated basis accessor constant (E123 in "mv[E123]=42;") if its cardinality (max number of element of grade k) is lower than this threshold.
     // Else, this accessor is not created (this is only for high dimensional Geometric Algebra).
     unsigned int maxDimBasisAccessor;
 
