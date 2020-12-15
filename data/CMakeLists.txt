@@ -13,6 +13,8 @@ else()
     include_directories("/usr/include/eigen3") # manually specify the include location
 endif()
 
+
+# python binding
 option(BUILD_PYTHON "Build Python library" OFF)
 if (BUILD_PYTHON)
     find_package(pybind11 REQUIRED)
@@ -21,17 +23,13 @@ endif()
 
 # call the CMakeLists.txt to make the documentation (Doxygen)
 # > 'make html' to generate the documentation
-add_subdirectory(doc)
-
-# compilation flags
-if (MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++14")
+find_package(Doxygen OPTIONAL_COMPONENTS QUIET)
+if(DOXYGEN_FOUND)
+    add_subdirectory(doc)
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++14 -Wno-return-local-addr")
+    message(WARNING "Doxygen not found, skip dococumentation")
 endif()
-set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-report ") # comilation profiling:  -Q -ftime-report
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-elide-constructors") # force the compilor to use our move 'copy constructor'
+
 
 # files to compile
 set(source_files src/cmake_project_name_original_case/Mvec.cpp)
@@ -46,6 +44,8 @@ message(STATUS "  headers")
 foreach(src_file ${header_files})
     message("          " ${src_file})
 endforeach()
+
+
 
 # generate a library
 if (MSVC)
@@ -62,6 +62,17 @@ if (BUILD_PYTHON)
         cmake_project_name_original_case)
 endif()
 
+# compilation flags
+if (MSVC)   
+    target_compile_features(cmake_project_name_original_case PRIVATE cxx_std_14) 
+    target_compile_options(cmake_project_name_original_case PRIVATE -Wall -O2) 
+else()
+    target_compile_features(cmake_project_name_original_case PRIVATE cxx_std_14) 
+    target_compile_options(cmake_project_name_original_case PRIVATE -Wall -O2 -Wno-return-local-addr)
+endif()
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-report ") # comilation profiling:  -Q -ftime-report
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-elide-constructors") # force the compilor to use our move 'copy constructor'
 
 # include directory path
 include_directories(src)

@@ -13,10 +13,6 @@ if(${EIGEN3_FOUND})
     message(STATUS "  include " ${EIGEN3_INCLUDE_DIR})
 endif()
 
-# compilation flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -O2 -std=c++14")
-set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g")
-
 # files to compile
 file(GLOB_RECURSE source_files src/*.cpp src/*.hpp)
 message(STATUS "  files " ${source_files})
@@ -27,3 +23,6 @@ add_executable(garamon_generator ${source_files})
 # link libs
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+# compilation flags
+target_compile_features(garamon_generator PRIVATE cxx_std_14) 
+target_compile_options(garamon_generator PRIVATE -Wall -O2) 

@@ -40,12 +40,12 @@ else()
 endif()
 
 
-# compilation flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++14")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-
 # compile
 add_executable(cmake_project_name_sample src/main.cpp)
+
+# compilation flags
+target_compile_features(cmake_project_name_sample PRIVATE cxx_std_14) 
+target_compile_options(cmake_project_name_sample PRIVATE -Wall -O2) 
 
 # includes
 include_directories(${EIGEN3_INCLUDE_DIR})
