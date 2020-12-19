@@ -15,7 +15,6 @@ Install
 ## Dependencies
     * 'Eigen 3.3.4'  or more [Eigen](http://eigen.tuxfamily.org)
     * 'Cmake 3.10' or more
-    * (optional) 'Doxygen' if you want documentation pages
 
 ## Compiler tested
     * gcc 5.4.0
@@ -33,7 +32,6 @@ Install
         * check that the cmake output has no errors
         * 'make'
         * the binary executable is on the 'build' directory
-        * (optional and not required) 'sudo make install'
 
 ## Install for Windows with MinGW, using Windows Power Shell
     * Check the dependencies
@@ -44,7 +42,6 @@ Install
         * check that the cmake output has no errors
 		* 'mingw32-make'
         * the binary executable is on the 'build' directory
-        * (optional and not required) 'mingw32-make install'
 
 ## Install for Windows with Visual Studio 15 2017 Win64, using Windows Power Shell or cmd
     * Check the dependencies
@@ -67,6 +64,7 @@ Usage
     * run the binary executable (from the 'build' directory) with the configuration file as argument
       > ./garamon_generator file.conf
     * the generated library is located in 'build/output' directory
+    * to install the generated library, see its README.md
 
 
 Notes
