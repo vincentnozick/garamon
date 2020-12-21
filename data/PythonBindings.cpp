@@ -74,7 +74,7 @@ PYBIND11_MODULE(project_namespace_py, m) {
       .def("__neq__",
            [](Mvec<double>& a, const Mvec<double>& b) { return a != b; })
       .def("__or__",
-           [](const Mvec<double>& a, const Mvec<double>& b) { return a ^ b; })
+           [](const Mvec<double>& a, const Mvec<double>& b) { return a | b; })
       .def("__or__",
            [](const Mvec<double>& a, double b) { return a ^ b; })
       .def("__ror__",
