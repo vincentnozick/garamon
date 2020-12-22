@@ -347,7 +347,7 @@ namespace project_namespace{
         /// \param mv2 - second operand of type Mvec
         /// \return boolean that specify the non-equality between two Mvec
         inline bool operator!=(const Mvec& mv2){
-            return !(mvData == mv2.mvData);
+            return !(*this == mv2); // issue #3 fixed by replacing Not !(mvData == mv2.mvData) with !(*this == mv2)
         }
 
         /// \brief Display all the non-null basis blades of this objects
