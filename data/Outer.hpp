@@ -107,7 +107,7 @@ project_singular_metric_comment_begin
     template<typename T>
     void outerProductPrimalDual(const Eigen::Matrix<T, Eigen::Dynamic, 1>& mv1, const Eigen::Matrix<T, Eigen::Dynamic, 1>& mv2, Eigen::Matrix<T, Eigen::Dynamic, 1>& mv3, // homogeneous multivectors to be processed
                                 const unsigned int grade_mv1, const unsigned int grade_mv2, const unsigned int grade_mv3,   // grade of the k-vectors
-                                unsigned int currentXorIdx1=0, unsigned int currentXorIdx2=0, unsigned int currentXorIdx3=31,             // position in the prefix tree
+                                unsigned int currentXorIdx1=0, unsigned int currentXorIdx2=0, unsigned int currentXorIdx3=(1<<algebraDimension)-1,  // position in the prefix tree
                                 unsigned int currentGradeMv1=0, unsigned int currentGradeMv2=0, unsigned int currentGradeMv3=0, // grade relative to the position in the prefix tree
                                 int sign=1, int complement=1,
                                 unsigned int indexLastVector_mv1=0, unsigned int indexLastVector_mv2=1, unsigned int indexLastVector_mv3=0,
@@ -177,7 +177,7 @@ project_singular_metric_comment_begin
     template<typename T>
     void outerProductDualPrimal(const Eigen::Matrix<T, Eigen::Dynamic, 1>& mv1, const Eigen::Matrix<T, Eigen::Dynamic, 1>& mv2, Eigen::Matrix<T, Eigen::Dynamic, 1>& mv3, // homogeneous multivectors to be processed
                                 const unsigned int grade_mv1, const unsigned int grade_mv2, const unsigned int grade_mv3,   // grade of the k-vectors
-                                unsigned int currentXorIdx1=0, unsigned int currentXorIdx2=0, unsigned int currentXorIdx3=31,             // position in the prefix tree
+                                unsigned int currentXorIdx1=0, unsigned int currentXorIdx2=0, unsigned int currentXorIdx3=(1<<algebraDimension)-1,             // position in the prefix tree
                                 unsigned int currentGradeMv1=0, unsigned int currentGradeMv2=0, unsigned int currentGradeMv3=0, // grade relative to the position in the prefix tree
                                 int sign=1, int complement=1,
                                 unsigned int indexLastVector_mv1=0, unsigned int indexLastVector_mv2=1, unsigned int indexLastVector_mv3=0,
@@ -244,7 +244,7 @@ project_singular_metric_comment_begin
     template<typename T>
     void outerProductDualDual(const Eigen::Matrix<T, Eigen::Dynamic, 1>& mv1, const Eigen::Matrix<T, Eigen::Dynamic, 1>& mv2, Eigen::Matrix<T, Eigen::Dynamic, 1>& mv3, // homogeneous multivectors to be processed
                                 const unsigned int grade_mv1, const unsigned int grade_mv2, const unsigned int grade_mv3,   // grade of the k-vectors
-                                unsigned int currentXorIdx1=31, unsigned int currentXorIdx2=31, unsigned int currentXorIdx3=31,             // position in the prefix tree
+                                unsigned int currentXorIdx1=(1<<algebraDimension)-1, unsigned int currentXorIdx2=(1<<algebraDimension)-1, unsigned int currentXorIdx3=(1<<algebraDimension)-1,             // position in the prefix tree
                                 unsigned int currentGradeMv1=0, unsigned int currentGradeMv2=0, unsigned int currentGradeMv3=0, // grade relative to the position in the prefix tree
                                 int sign=1, int complement=1,
                                 unsigned int indexLastVector_mv1=0, unsigned int indexLastVector_mv2=1, unsigned int indexLastVector_mv3=0,
