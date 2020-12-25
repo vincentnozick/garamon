@@ -270,10 +270,10 @@ namespace project_namespace{
         /// \return a scalar
         Mvec<T> scalarProduct(const Mvec<T> &mv2) const;
 
-        /// \brief defines the Hestenes product between two multivectors (Inner product - scalar product)
+        /// \brief defines the dot product between two multivectors (Inner product + scalar product)
         /// \param mv2 - a multivector
         /// \return a multivector.
-        Mvec<T> hestenesProduct(const Mvec<T> &mv2) const;
+        Mvec<T> dotProduct(const Mvec<T> &mv2) const;
 
         /// \brief defines the geometric product between a multivector and a scalar
         /// \param value - a scalar
@@ -918,6 +918,10 @@ project_multivector_one_component
         for(const auto & itMv1 : this->mvData)
             for(const auto & itMv2 : mv2.mvData){
 
+                // inner between a mv and a scalar gives 0
+                if(itMv1.grade*itMv2.grade == 0)
+                    continue;
+
                 // perform the inner product
                 int absGradeMv3 = std::abs((int)(itMv1.grade - itMv2.grade));
                 auto itMv3 = mv3.createVectorXdIfDoesNotExist(absGradeMv3);
@@ -935,14 +939,14 @@ project_multivector_one_component
 
     template<typename U, typename S>
     Mvec<U> operator|(const S &value, const Mvec<U> &mv) {
-        return mv | value;
+        return Mvec<U>();
     }
 
 
     template<typename T>
     template<typename S>
     Mvec<T> Mvec<T>::operator|(const S &value) const {
-        return (*this) > value ; // inner between a mv and a scalar gives 0 (empty multivector)
+        return Mvec<T>() ; // inner between a mv and a scalar gives 0 (empty multivector)
     }
 
 
@@ -1154,15 +1158,12 @@ project_singular_metric_comment_begin
 project_singular_metric_comment_end
 
     template<typename T>
-    Mvec<T> Mvec<T>::hestenesProduct(const Mvec<T> &mv2) const{
+    Mvec<T> Mvec<T>::dotProduct(const Mvec<T> &mv2) const{
         // Loop over non-empty grade of mv1 and mv2
         // call the right explicit unrolled inner function using the functions pointer called innerFunctionsContainer
         Mvec<T> mv3;
         for(const auto & itMv1 : this->mvData)
             for(const auto & itMv2 : mv2.mvData){
-
-                if(itMv1.grade*itMv2.grade == 0)
-                    continue;
 
                 // perform the inner product
                 int absGradeMv3 = std::abs((int)(itMv1.grade - itMv2.grade));
