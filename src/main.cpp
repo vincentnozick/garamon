@@ -383,6 +383,14 @@ int main(int argc, char** argv){
     writeFile(data, projectDirectory + "/setup.py");
 
 
+    // sample.py
+    data = readFile(templateDataDirectory + "sample/sample.py");
+    substitute(data,"project_namespace_py", metaData.namespaceName + "_py");
+    substitute(data,"project_first_vector_basis", metaData.basisVectorName[0]);
+    substitute(data,"project_second_vector_basis", metaData.basisVectorName[1]);
+    writeFile(data, sampleDirectory + "/sample.py");
+
+
 
     return EXIT_SUCCESS;
 }
