@@ -66,6 +66,21 @@ Usage
     * the generated library is located in 'build/output' directory
     * to install the generated library, see its README.md
 
+## Run the Python binding sample for a specific algebra
+Let us consider the considered algebra is CGA of R3 corresponding to the configuration file c3ga.conf. 
+
+    * Check the dependencies
+    * From Garamon Generator root directory
+    	* 'mkdir build'
+    	* 'cd build'
+    	* 'cmake ..'
+    	* 'make'
+    	* './garamon_generator ../conf/c3ga.conf'
+    	* 'cd output/garamon_c3ga/'
+    	* 'python setup.py build'
+    	* 'python setup.py install'
+    	* 'cd sample'
+    	* 'python sample.py'
 
 Notes
 =====
