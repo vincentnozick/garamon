@@ -114,7 +114,7 @@ project_singular_metric_comment_begin
 project_singular_metric_comment_end
 
   mvec.def("scalar_product", &Mvec<double>::scalarProduct);
-  mvec.def("hestenes_product", &Mvec<double>::hestenesProduct);
+  mvec.def("dot_product", &Mvec<double>::dotProduct);
   mvec.def("inv", &Mvec<double>::inv);
 
   mvec.def("grades", &Mvec<double>::grades);
