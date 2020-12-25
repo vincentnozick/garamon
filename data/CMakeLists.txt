@@ -15,7 +15,7 @@ endif()
 
 
 # python binding
-option(BUILD_PYTHON "Build Python library" OFF)
+#option(BUILD_PYTHON "Build Python library" OFF)
 if (BUILD_PYTHON)
     find_package(pybind11 REQUIRED)
 endif()
@@ -45,6 +45,8 @@ foreach(src_file ${header_files})
     message("          " ${src_file})
 endforeach()
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # generate a library
