@@ -76,11 +76,11 @@ PYBIND11_MODULE(project_namespace_py, m) {
       .def("__or__",
            [](const Mvec<double>& a, const Mvec<double>& b) { return a | b; })
       .def("__or__",
-           [](const Mvec<double>& a, double b) { return a ^ b; })
+           [](const Mvec<double>& a, double b) { return a | b; })
       .def("__ror__",
-           [](const Mvec<double>& a, double b) { return a ^ b; })
+           [](const Mvec<double>& a, double b) { return a | b; })
       .def("__ior__",
-           [](Mvec<double>& a, const Mvec<double>& b) { a ^= b; return a; })
+           [](Mvec<double>& a, const Mvec<double>& b) { a |= b; return a; })
       .def("__xor__",
            [](const Mvec<double>& a, const Mvec<double>& b) { return a ^ b; })
       .def("__xor__",
