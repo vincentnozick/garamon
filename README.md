@@ -66,7 +66,7 @@ Usage
     * the generated library is located in 'build/output' directory
     * to install the generated library, see its README.md
 
-## Run the Python binding sample for a specific algebra
+## Run the Python binding sample for a specific algebra for UNIX system
 Let us consider the considered algebra is CGA of R3 corresponding to the configuration file c3ga.conf. 
 
     * Check the dependencies
