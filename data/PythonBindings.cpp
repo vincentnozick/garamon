@@ -34,6 +34,8 @@ PYBIND11_MODULE(project_namespace_py, m) {
 
   m.attr("scalar") = 0;
   project_static_multivector_one_component_python
+  m.def("I", &I<double>);
+
 
   // Class definition
   auto mvec = py::class_<Mvec<double>>(m, "Mvec");
