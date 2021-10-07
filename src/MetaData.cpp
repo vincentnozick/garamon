@@ -234,7 +234,7 @@ bool MetaData::metricDiagonalization() {
     inverseTransformationMatrix = Eigen::MatrixXd(transformationMatrix.transpose());
 
     // convert floating points to nearest integers (when possible)
-    Eigen::MatrixXd scaleMatrix = Eigen::MatrixXd::Identity(metric.rows(),metric.cols());
+    Eigen::MatrixXd scaleMatrix = Eigen::MatrixXd::Identity(metric.rows(),metric.cols()); // refer to issue #9
     if(useEigenRefinement)
         scaleMatrix = eigenRefinement(transformationMatrix, diagonalMatrix, inverseTransformationMatrix);
 //    std::cout << "metric\n" << metric << std::endl;
