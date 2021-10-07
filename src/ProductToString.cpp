@@ -409,6 +409,17 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
                 transformationMatrices[dimension-grade],
                 diagonalMetric);
 
+        
+        if(listProductInnerProduct.empty()){ // empty set of coefficients, most likely a numerical cleanup problem with
+            // fill the whole grade-vector with zero values after issue #9
+            for(int i=0;i<bin_coeff(dimension, grade)-1;++i)
+                outputStringPermutations +="0,";
+            outputStringPermutations +="0";
+            if(grade==0) outputStringPermutations += "}, ";
+            else outputStringPermutations += "}}, ";
+        }
+
+
 
         listProductInnerProduct.sort([](const productComponent<double> &pc1, const productComponent<double> &pc2) {return pc2.indexOfMv1 > pc1.indexOfMv1;});
         for(auto & products : listProductInnerProduct){ // for each list of permutation for the grade 'grade'

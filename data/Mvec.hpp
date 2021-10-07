@@ -553,7 +553,7 @@ namespace project_namespace{
         /// \brief the L2-norm over 2 of the mv is mv.mv
         /// \return the L2-norm of the multivector (as a double)
         T inline quadraticNorm() const {
-            return ( this->reverse() | (*this) );
+            return ( this->reverse() > (*this) );
         };
 
         /// \brief compute the dual of a multivector (i.e mv* = reverse(mv) * Iinv). If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
