@@ -556,13 +556,13 @@ namespace project_namespace{
         /// \return the L2-norm of the multivector (as a double)
         T inline norm() const {
             return sqrt( fabs( (*this).scalarProduct( this->reverse() ) ));
-        };
+        }
 
         /// \brief the L2-norm over 2 of the mv is mv.mv
         /// \return the L2-norm of the multivector (as a double)
         T inline quadraticNorm() const {
             return ( this->reverse() > (*this) );
-        };
+        }
 
         /// \brief compute the dual of a multivector (i.e mv* = reverse(mv) * Iinv). If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
         /// \return - the dual of the multivector
@@ -1306,7 +1306,7 @@ project_singular_metric_comment_end
         if(n<std::numeric_limits<T>::epsilon() && n>-std::numeric_limits<T>::epsilon())
             return Mvec<T>(); // return 0, this is was gaviewer does.
         return this->reverse() / n;
-    };
+    }
 
 
     template<typename U>
@@ -1376,7 +1376,7 @@ project_singular_metric_comment_end
             mvResult.gradeBitmap |= (1 << kvec.grade);
         }
         return mvResult;
-    };
+    }
 
     // \brief compute the reverse of a multivector
     // \return - the reverse of the multivector

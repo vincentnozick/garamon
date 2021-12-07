@@ -89,7 +89,7 @@ namespace project_namespace{
     };
 
     template<const int n, const int k>
-    constexpr const static int binomial()
+    constexpr static int binomial()
     {
         return Binomial<n,k>::value;
     }
