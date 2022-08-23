@@ -1,8 +1,10 @@
-Garamon Generator
+Garamon Generator [![Discord chat](https://img.shields.io/discord/1009227277491519618.svg?logo=discord&colorB=7289DA&style=flat-square)](https://discord.gg/dYe2bPAWEQ)
 =================
 
 Garamon (Geometric Algebra Recursive and Adaptative Monster) is a generator of C++ libraries dedicated to Geometric Algebra.
 From a configuration file, the library generator generate the source code of the specified Algebra as well as a compatible sample code and some documentation.
+
+For help or discussion related to Garamon, you can join us on [Discord](https://discord.gg/dYe2bPAWEQ).
 
 ## Features
     * MIT Licence allows free use in all software (including GPL and commercial)
