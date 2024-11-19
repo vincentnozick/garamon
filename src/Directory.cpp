@@ -18,10 +18,15 @@
 #include <sys/stat.h>
 #include <regex>       // for substitute
 
+#include <libgen.h>  // For dirname()
+#include <cstring>
+
 
 #if defined(_WIN32) && (defined(__MINGW32__) || defined(_MSC_BUILD))
 	#include <direct.h>
 	#include <io.h>
+
+    #include <windows.h>
 #endif // __WINDOWS Mingw or MSVC compiler__
 
 
@@ -137,4 +142,22 @@ bool copyText(const std::string &src, const std::string &dest) {
     destFile << srcFile.rdbuf();
 
     return srcFile && destFile;
+}
+
+// Function to get the directory of the executable
+std::string getExecutableDirectory(const char* argv0) {
+#if defined(_WIN32) || defined(_WIN64)
+    // Windows: Use GetModuleFileNameA to get the executable path
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);  // Get the path of the executable
+    std::string path(buffer);
+    size_t found = path.find_last_of("/\\");  // Find the last '/' or '\\'
+    return path.substr(0, found);  // Return the directory part
+#else
+    // Linux/macOS: Use dirname from <libgen.h> to get the executable directory
+    char* path = strdup(argv0);  // Make a copy of argv[0] because dirname modifies the string
+    std::string dir = dirname(path);
+    free(path);
+    return dir;
+#endif
 }

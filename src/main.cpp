@@ -21,42 +21,67 @@
 #include "ProductToString.hpp"
 
 
+int main(int argc, char** argv) {
 
-int main(int argc, char** argv){
+    // Default output directory
+    std::string outputDirectory = "output/";
 
-    // check the program arguments
-    if(argc != 2){
-        std::cerr << "usage: " << argv[0] << " file.conf" << std::endl;
-        std::cerr << "where 'file.conf' is the file that defines your algebra." << std::endl;
-        return EXIT_FAILURE;;
+    const std::string executableDir = getExecutableDirectory(argv[0]);
+    std::string templateDataDirectory = executableDir + "/../data/";
+
+    // Check the program arguments
+    for (int i = 1; i < argc; ++i) {
+        if (std::strcmp(argv[i], "-o") == 0) {
+            if (i + 1 < argc) {
+                outputDirectory = argv[++i];  // Get the next argument as the output directory
+            } else {
+                std::cerr << "error: option '-o' requires a directory path" << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
+        if (std::strcmp(argv[i], "-d") == 0) {
+            if (i + 1 < argc) {
+                templateDataDirectory = argv[++i];  // Get the next argument as the data directory
+            } else {
+                std::cerr << "error: option '-d' requires a directory path" << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
     }
 
-    // configuration file
-    const std::string configurationFilesDirectory = argv[1];
-    
-    const std::string templateDataDirectory = "../data/";
-    const std::string outputDirectory = "output/";
+    // Check if the required configuration file argument is provided
+    if (argc < 2) {
+        std::cerr << "usage: " << argv[0] << " [-o output_dir] [-d data_dir] file.conf" << std::endl;
+        std::cerr << "where 'file.conf' is the file that defines your algebra." << std::endl;
+        return EXIT_FAILURE;
+    }
 
-    // read the configuration data
+    // Configuration file
+    const std::string configurationFilesDirectory = argv[argc - 1];  // The last argument should be the config file
+
+
+
+    // Read the configuration data
     std::cout << "load meta data ..." << std::endl;
+    // Assuming MetaData class exists as shown in your code snippet
     MetaData metaData(configurationFilesDirectory);
     metaData.display();
 
-    // define the arborescence
+    // Define the project directory structure
     std::cout << "define the project arborescence ..." << std::endl;
-    std::string projectDirectory      = outputDirectory  + "garamon_" + metaData.namespaceName;
-    std::string srcDirectoryMain      = projectDirectory + "/src";
-    std::string srcDirectory          = projectDirectory + "/src/" + metaData.namespaceName;
-    std::string docDirectory          = projectDirectory + "/doc";
-    std::string docImageDirectory     = projectDirectory + "/doc/images";
-    std::string docHowToDirectory     = projectDirectory + "/doc/HOWTO";
-    std::string sampleDirectory       = projectDirectory + "/sample";
-    std::string srcSampleDirectory    = projectDirectory + "/sample/src";
+    std::string projectDirectory = outputDirectory + "/garamon_" + metaData.namespaceName;
+    std::string srcDirectoryMain = projectDirectory + "/src";
+    std::string srcDirectory = projectDirectory + "/src/" + metaData.namespaceName;
+    std::string docDirectory = projectDirectory + "/doc";
+    std::string docImageDirectory = projectDirectory + "/doc/images";
+    std::string docHowToDirectory = projectDirectory + "/doc/HOWTO";
+    std::string sampleDirectory = projectDirectory + "/sample";
+    std::string srcSampleDirectory = projectDirectory + "/sample/src";
     std::string moduleSampleDirectory = projectDirectory + "/sample/modules";
 
-    // check if the directories are not already existing
-    if(directoryOrFileExists(projectDirectory)){
-        std::cout.flush(); // does not fixe the problem of asynchronous output between cout and cerr
+    // Check if the directories are not already existing
+    if (directoryOrFileExists(projectDirectory)) {
+        std::cout.flush();  // Flushing the stream to avoid asynchronous output issues
         std::cerr << "error: a data or directory '" << projectDirectory << "' already exists" << std::endl;
         return EXIT_FAILURE;
     }

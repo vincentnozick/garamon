@@ -36,5 +36,6 @@ bool copyBin(const std::string &src, const std::string &dest);
 
 bool copyText(const std::string &src, const std::string &dest);
 
+std::string getExecutableDirectory(const char* executable);
 
 #endif  // GARAGEN_DIRECTORY_HPP__
