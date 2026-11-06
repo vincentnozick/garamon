@@ -16,9 +16,13 @@
 #define project_inclusion_guard
 #pragma once
 
+// part of Mvec.hpp, which includes it before the definition of Mvec: not to be included directly
+// IWYU pragma: private, include "project_namespace/Mvec.hpp"
+
+#include <array>
+
 #include <Eigen/Core>
 
-#include "project_namespace/Mvec.hpp"
 #include "project_namespace/Outer.hpp"
 
 

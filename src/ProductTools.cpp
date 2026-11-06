@@ -9,10 +9,22 @@
 
 #include "ProductTools.hpp"
 
+#include <algorithm>
+#include <bit>
+#include <cstddef>
+#include <cstdlib>
+#include <list>
+#include <map>
+#include <vector>
+
+#include <Eigen/Core>
+#include <Eigen/LU> // IWYU pragma: keep (MatrixBase::determinant() is declared in Core but defined in LU)
+#include <Eigen/SparseCore>
+
 
 // fills the [xor to pos/grade] and the [pos/grade to xor] arrays.
 ProductTools::ProductTools(const unsigned int vectorSpaceDimension)
-        : dimension(vectorSpaceDimension), xorIndexToGradeAndPosition(1<<vectorSpaceDimension)
+        : dimension(vectorSpaceDimension), xorIndexToGradeAndPosition(std::size_t(1) << vectorSpaceDimension)
 {
     // fill simultaneously both 'gradePositionToXorIndex' and 'xorIndexToGradeAndPosition'
     for(unsigned int grade=0; grade<=dimension; ++grade) {
@@ -55,7 +67,7 @@ ProductTools::~ProductTools() {}
 
 
 unsigned int ProductTools::hammingWeight(const unsigned int xorIndexMv) {
-    return __builtin_popcount(xorIndexMv);
+    return (unsigned int)std::popcount(xorIndexMv);
 }
 
 
@@ -130,8 +142,8 @@ double ProductTools::productCoefficientFromMetric(const unsigned int xorIndexMv1
     unsigned int commonOnes = xorIndexMv1 & xorIndexMv2;
 
     // loop over all the common 1s bit of xorIndexMv1 and xorIndexMv2
-    unsigned int dimension = diagonalMetric.size();
-    for(unsigned int i=0;i<dimension; ++i){
+    Eigen::Index dimension = diagonalMetric.size();
+    for(Eigen::Index i=0;i<dimension; ++i){
         if((commonOnes & (1<<i)) != 0){
             // one at position i in the binary representation of commonOnes
             coefficient *= diagonalMetric[i];
@@ -192,6 +204,10 @@ std::list<productComponent<double>> ProductTools::generateExplicitInnerProductLi
             if(innerProductExists(indexMv1, indexMv2)){
                 // compute the coefficient
                 currentProduct.coefficient = productCoefficientFromMetric(indexMv1, indexMv2,diagonalMetric);
+
+                // degenerate metric: the product may be null
+                if(currentProduct.coefficient == 0.0)
+                    continue;
                 // compute the resulting index
                 unsigned int indexOfResult = xorIndexToGradeAndPosition[productResultXorIndex(indexMv1, indexMv2)].second;
                 // fill the resulting (gradeMv2-gradeMv1)-vector which is expressed in the orthogonal basis
@@ -313,9 +329,9 @@ std::vector<std::list<productComponent<double>>> ProductTools::generateExplicitG
 
 
 std::vector<std::list<productComponent<double>>> ProductTools::generateExplicitGeometricProductList(const unsigned int gradeMv1,const unsigned int gradeMv2,
-                                                                                    Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv1,
-                                                                                    Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv2,
-                                                                                    std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& transformationMatricesMv3,
+                                                                                    const Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv1,
+                                                                                    const Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv2,
+                                                                                    const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& transformationMatricesMv3,
                                                                                     const Eigen::VectorXd& diagonalMetric) const{
     std::vector<std::list<productComponent<double>>> outputListOfProducts(dimension+1);
     // As we ignore the inner and outer products contributions. Thus, all products whose resulting grade is gradeOuter=gradeMv1+gradeMv2 or gradeInner=abs(gradeMv1-gradeMv2) will be ignored
@@ -353,15 +369,8 @@ std::vector<std::list<productComponent<double>>> ProductTools::generateExplicitG
                     // in a sparse vector, add only non-zero values, furthermore ignore the outer and inner product contributions
                     if((resultingCoefficient !=0) && (gradeOfResult!=gradeOuter) && (gradeOfResult!=gradeInner)){
                         // If the vector whose grade is gradeOfResult is not already initialized then initialize with the correct size
-                        if(mv3Ortho.count(gradeOfResult)!= 0){
-                            // already exists
-                            mv3Ortho[gradeOfResult].coeffRef(indexOfResult) += resultingCoefficient;
-                        }else{
-                            // else create the sparse vector with the correct size
-                            Eigen::SparseVector<double,Eigen::ColMajor> tmpMv3Result(transformationMatricesMv3[gradeOfResult].cols());
-                            tmpMv3Result.coeffRef(indexOfResult) += resultingCoefficient;
-                            mv3Ortho[gradeOfResult] = tmpMv3Result;
-                        }
+                        auto itMv3Ortho = mv3Ortho.try_emplace(gradeOfResult, transformationMatricesMv3[gradeOfResult].cols()).first;
+                        itMv3Ortho->second.coeffRef(indexOfResult) += resultingCoefficient;
                     }
                 }
             } // end of: compute the coefficient of the current product, in the orthogonal basis
@@ -370,8 +379,8 @@ std::vector<std::list<productComponent<double>>> ProductTools::generateExplicitG
             // note that the result might have more than 1 grade thus we have loop over all possible grades of the result
             // except the grades corresponding to the outer and inner products
             // for each grade of the resulting multivector, compute the result in the original basis
-            for(auto & iteratorResultingVectors : mv3Ortho){
-                Eigen::SparseVector<double, Eigen::ColMajor> mv3 = transformationMatricesMv3[iteratorResultingVectors.first] * iteratorResultingVectors.second;
+            for(const auto & [gradeMv3, vectorMv3Ortho] : mv3Ortho){
+                Eigen::SparseVector<double, Eigen::ColMajor> mv3 = transformationMatricesMv3[gradeMv3] * vectorMv3Ortho;
                 // add all non-zero component to the resulting list of product component
                 for (Eigen::SparseVector<double>::InnerIterator itMv3(mv3); itMv3; ++itMv3) {
                     productComponent<double> currentProduct;
@@ -382,28 +391,13 @@ std::vector<std::list<productComponent<double>>> ProductTools::generateExplicitG
                         currentProduct.indexOfMv2 = indexMv2;
                         currentProduct.indexOfMv3 = itMv3.index();
                         currentProduct.coefficient = itMv3.value();
-                        outputListOfProducts[iteratorResultingVectors.first].push_back(currentProduct);
+                        outputListOfProducts[gradeMv3].push_back(currentProduct);
                     }
                 }
             }// end of: compute the coefficient of the current product, in the original basis
         }
     }
     return outputListOfProducts;
-}
-
-
-void ProductTools::displayGradeToXorIndices() const{
-    std::cout<<"size xor to grade pos = "<<xorIndexToGradeAndPosition.size()<<std::endl;
-    for(unsigned int i=0;i<xorIndexToGradeAndPosition.size();++i){
-        std::cout<<"xor index = "<< i << ", grade is " <<xorIndexToGradeAndPosition[i].first<< ", position is "<< xorIndexToGradeAndPosition[i].second <<std::endl;
-    }
-    std::cout<<"size grade pos to xor = "<<gradePositionToXorIndex.size()<<std::endl;
-    for(unsigned int i=0;i<gradePositionToXorIndex.size();++i) {
-        for (unsigned int j = 0; j < gradePositionToXorIndex[i].size(); ++j) {
-            std::cout << "grade = " << i << ", position " << j << ", xor index = " << gradePositionToXorIndex[i][j]
-                      << std::endl;
-        }
-    }
 }
 
 
@@ -423,23 +417,12 @@ unsigned int ProductTools::getXorIndex(unsigned int grade, unsigned int homogene
 
 
 double getScaleInversePseudoScalar(const Eigen::MatrixXd &metric){
-    // compute the determinant of the metric
-    double sign = 1.0;
-    for(unsigned int i=0; i<(unsigned int)metric.rows(); ++i){
-        // start a table line by the vector name
-        if(metric(i,i)==0){
-            // A permutation needs to be computed
-            // look for the matching column
-            for(unsigned int j=i; j<(unsigned int)metric.cols(); ++j){
-                if(metric(i,j) != 0){
-                    sign *= -1;
-                }
-            }
-        }
-        else sign *= metric(i,i);
-    }
-
-    return sign;
+    // the pseudo scalar I = e1^e2^...^en satisfies reverse(I) I = det(metric), thus
+    // I^{-1} = reverse(I) / det(metric) = (-1)^{n(n-1)/2} I / det(metric).
+    // This function returns 1/det(metric), the caller handles the reverse sign.
+    // (0 for a degenerate metric, the pseudo scalar is then not invertible)
+    const double determinant = metric.determinant();
+    if(determinant == 0.0)
+        return 0.0;
+    return 1.0 / determinant;
 }
-
-

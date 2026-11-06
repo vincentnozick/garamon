@@ -35,7 +35,7 @@ namespace project_namespace{
         // recompute the grade useful for the sequel
         constexpr int gd = sizeof...(paramIdx);
 
-        ArrayIndices<int, gd> a = {paramIdx...};
+        ArrayIndices<int, gd> a = {{paramIdx...}, 1}; // sign starts at +1
 
 
         for (int i = 0;  i < gd - 1;  i++) {
@@ -99,9 +99,15 @@ namespace project_namespace{
         return (n <= 1) ? 1 : n * factorial(n - 1);
     }
 
+    /// multiplicative formula: C(n,k) = prod_{i=1}^{k} (n-k+i)/i (exact at each step, no factorial overflow)
+    constexpr unsigned int bin_coeff_product(int n, int k, int i, unsigned long long res)
+    {
+        return (i > k) ? (unsigned int)res : bin_coeff_product(n, k, i+1, res * (unsigned long long)(n - k + i) / (unsigned long long)i);
+    }
+
     constexpr unsigned int bin_coeff(int n, int k)
     {
-        return (k>n)?0:factorial(n) / factorial(n - k) / factorial(k);
+        return (k<0 || k>n) ? 0 : bin_coeff_product(n, (k > n-k) ? n-k : k, 1, 1);
     }
 
 

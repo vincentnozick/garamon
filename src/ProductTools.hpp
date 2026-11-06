@@ -16,17 +16,11 @@
 #define GARAGEN_PRODUCTTOOLS_HPP
 
 #include <vector>
-#include <array>
-#include <map>
 #include <utility>     // pairs
-#include <Eigen/Dense> // use the metric which is dense
-#include <Eigen/Sparse> // use the transformation matrices which are sparse
-#include <iostream>
-#if defined(_MSC_BUILD)
-	#ifndef __builtin_popcount
-		#define __builtin_popcount __popcnt
-	#endif
-#endif // __WINDOWS MSVC compiler__
+#include <list>
+
+#include <Eigen/Core>       // use the metric which is dense
+#include <Eigen/SparseCore> // use the transformation matrices which are sparse
 
 
 /// In the computation of mv3 = mv1^mv2, this represents a quadruplet containing the indices of mv1,mv2,mv3 and a coefficient in a product between two blades.
@@ -38,26 +32,6 @@ struct productComponent{
     unsigned int indexOfMv3; // in the example above, indexOfMv2 would be 4
     T coefficient;           // in the example above, coefficient would be -1
 };
-
-template<typename C>
-bool compareProductComponents(const C &a, const C &b)
-//bool operator < (const productComponent &a, const productComponent &b) const
-{
-    // first compare on indexOfMv3
-    if(a.indexOfMv3 > b.indexOfMv3) return false;
-    if(a.indexOfMv3 < b.indexOfMv3) return true;
-
-    // second compare on indexOfMv1
-    if(a.indexOfMv1 > b.indexOfMv1) return false;
-    if(a.indexOfMv1 < b.indexOfMv1) return true;
-
-    // thrid compare on indexOfMv2
-    if(a.indexOfMv2 > b.indexOfMv2) return false;
-    if(a.indexOfMv2 < b.indexOfMv2) return true;
-
-    return true;
-}
-
 
 class ProductTools {
 public:
@@ -156,15 +130,12 @@ public:
     /// \param diagonalMetric defines the metric in the algebra related orthogonal space
     /// \return a vector of products (each cell of the vector contains its associated grade products). For each component of the result mv3=mv1 mv2, we return a list of quadruplet (indexMv1,indexMv2,indexMv3,coefficient).
     std::vector<std::list<productComponent<double>>> generateExplicitGeometricProductList(const unsigned int gradeMv1,const unsigned int gradeMv2,
-                                                                                          Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv1,
-                                                                                          Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv2,
-                                                                                          std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& transformationMatricesMv3,
+                                                                                          const Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv1,
+                                                                                          const Eigen::SparseMatrix<double, Eigen::ColMajor>& transformationMatrixMv2,
+                                                                                          const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& transformationMatricesMv3,
                                                                                           const Eigen::VectorXd& diagonalMetric) const;
 
 
-
-    // tool to debug
-    void displayGradeToXorIndices() const;
 
     /// \brief getter: return the grade knowing the Xor index
     unsigned int getGrade(unsigned int xorIndex) const;
@@ -195,7 +166,7 @@ protected:
     std::vector<std::pair<unsigned int,unsigned int> > xorIndexToGradeAndPosition; // number of pairs is 2^dimension
 };
 
-/// \brief generate a scale containing the sign of the norm of the pseudo-inverse
+/// \brief return 1/det(metric) (0 for a degenerate metric): the inverse pseudo-scalar is (-1)^{n(n-1)/2} I / det(metric)
 double getScaleInversePseudoScalar(const Eigen::MatrixXd &metric);
 
 #endif //GARAGEN_PRODUCTTOOLS_HPP

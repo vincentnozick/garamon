@@ -9,11 +9,21 @@
 
 
 #include "MetricTools.hpp"
+#include "ProductTools.hpp"
+#include "Utilities.hpp"
 
 
-#include <Eigen/Eigenvalues>
 #include <cmath>
-#include <iostream>
+#include <iterator>
+#include <limits>
+#include <utility>
+#include <vector>
+
+#include <Eigen/Core>
+#include <Eigen/Eigenvalues>
+#include <Eigen/LU>
+#include <Eigen/SparseCore>
+#include <Eigen/SparseLU>
 
 
 bool isMatrixDiagonal(const Eigen::MatrixXd &A, const double epsilon){
@@ -21,7 +31,7 @@ bool isMatrixDiagonal(const Eigen::MatrixXd &A, const double epsilon){
     for(unsigned int i=0; i<(unsigned int)A.rows(); ++i)
         for(unsigned int j=0; j<(unsigned int)A.cols(); ++j) {
             if(i==j) continue;
-            if(fabs(A(i,j)) > epsilon)
+            if(std::fabs(A(i,j)) > epsilon)
                 return false;
         }
     return true;
@@ -35,10 +45,10 @@ bool isMatrixIdentity(const Eigen::MatrixXd &A, const double epsilon){
 
     for(unsigned int i=0; i<(unsigned int)A.rows(); ++i)
         for(unsigned int j=0; j<(unsigned int)A.cols(); ++j) {
-            if( (i==j) && (fabs(A(i,j)-1) > epsilon) )
+            if( (i==j) && (std::fabs(A(i,j)-1) > epsilon) )
                 return false;
 
-            if( (i!=j) && (fabs(A(i,j)) > epsilon) )
+            if( (i!=j) && (std::fabs(A(i,j)) > epsilon) )
                 return false;
         }
 
@@ -48,11 +58,31 @@ bool isMatrixIdentity(const Eigen::MatrixXd &A, const double epsilon){
 
 bool isMatrixPermutationOfDiagonal(const Eigen::MatrixXd &metric, const double epsilon){
 
- return isMatrixDiagonal(metric.transpose()*metric,epsilon);
+    // at most one non-zero element per row and per column
+    // (checking that metric^T * metric is diagonal is not enough, i.e. [[1,1],[1,-1]])
+    for(unsigned int i=0; i<(unsigned int)metric.rows(); ++i){
+        unsigned int nonZeroInRow = 0;
+        for(unsigned int j=0; j<(unsigned int)metric.cols(); ++j)
+            if(std::fabs(metric(i,j)) > epsilon)
+                ++nonZeroInRow;
+        if(nonZeroInRow > 1)
+            return false;
+    }
+
+    for(unsigned int j=0; j<(unsigned int)metric.cols(); ++j){
+        unsigned int nonZeroInColumn = 0;
+        for(unsigned int i=0; i<(unsigned int)metric.rows(); ++i)
+            if(std::fabs(metric(i,j)) > epsilon)
+                ++nonZeroInColumn;
+        if(nonZeroInColumn > 1)
+            return false;
+    }
+
+    return true;
 }
 
 
-unsigned int getRank(const Eigen::MatrixXd &metric){
+Eigen::Index getRank(const Eigen::MatrixXd &metric){
 
     Eigen::FullPivLU<Eigen::MatrixXd> lu(metric);
     return lu.rank();
@@ -111,27 +141,14 @@ Eigen::MatrixXd eigenRefinement(Eigen::MatrixXd &P, Eigen::MatrixXd &D, Eigen::M
 
         // convert the per line smallest non-zero value to 1
         double minVal = minAbsNonZeroValue(P.col(i));
+        if(minVal == 0.0) // null column: nothing to scale
+            continue;
         P.col(i)    /= minVal;
         Pinv.row(i) *= minVal;
         //D(i,i) = 1.0 / (minVal*minVal);
         scaleMatrix(i,i) = 1.0/minVal;
     }
     return scaleMatrix;
-}
-
-
-// check if the clean up of the matrices still leads to a set of matrices whose product is equal to the initial metric.
-bool checkNumericalCleanUp(const Eigen::MatrixXd &M, const Eigen::MatrixXd &P, const Eigen::MatrixXd & A, const double epsilon){
-
-    Eigen::MatrixXd M2 = P * A * P.transpose();
-    Eigen::MatrixXd nullMatrix = (M - M2).cwiseAbs();
-
-    for(unsigned int i=0; i<(unsigned int)M.rows(); ++i)
-        for(unsigned int j=0; j<(unsigned int)M.cols(); ++j)
-            if(nullMatrix(i,j) > epsilon)
-                return false;
-
-    return true;
 }
 
 
@@ -154,77 +171,45 @@ bool checkNumericalCleanUp(const Eigen::MatrixXd &M,
 }
 
 
-// when pertinent, replace a supposed integer value by the nearby int, etc.
-Eigen::SparseMatrix<double> numericalCleanUpSparse(const Eigen::MatrixXd &M, const double epsilon){
+// round a value to a "nice" nearby value when possible (0, an integer, a multiple of 2^-7 or a decimal number), the original value is returned if no such value is close enough
+double numericalCleanUpValue(const double value, const double epsilon){
 
-    Eigen::SparseMatrix<double> N(M.rows(),M.cols());
+    // ignore the zero
+    if (std::fabs(value) < epsilon)
+        return 0.0;
 
-    for(unsigned int i=0; i<(unsigned int)M.rows(); ++i)
-        for(unsigned int j=0; j<(unsigned int)M.cols(); ++j){
+    // round near integers to integers
+    const double val = (double) std::lround(value);
+    if (std::fabs(val - value) < epsilon)
+        return val;
 
-            // ignore the zero
-            if(fabs(M(i,j)) < epsilon)
-                continue;
+    // some negative power of 2
+    const int maxNegPower = 7; // 2^{-7} = 0.0078125
+    const double step = std::pow(2,-maxNegPower);
+    for(int k=-(1<<(maxNegPower-1)); k<=(1<<(maxNegPower-1)); ++k){
+        const double x = val + k*step;
+        if(std::fabs(x - value) < epsilon)
+            return x;
+    }
 
-            // round near integers to integers
-            int val = std::lround(M(i,j));
-            if( fabs(val - M(i,j)) < epsilon ){
-                N.insert(i,j) = val;
-                continue;
-            }
+    // if failed to round with integer
+    // round with decimal
+    for(int d=0; d<=10; ++d) {
+        const double x = (10.0*val - 5.0 + d) / 10.0; // (not val - 0.5 + d/10: not the nearest double of the decimal value)
+        if (std::fabs(x - value) < epsilon)
+            return x;
+    }
 
-            // if failed to round with integer
-            // round with decimal
-            for(double d=0; d<=10; ++d){
-                double decimal = -0.5 + d/10.0;
-                if( fabs(val + decimal - M(i,j)) < epsilon ){
-                    N.insert(i,j) = val + decimal;
-                    continue;
-                }
-            }
-        }
-
-    return N;
+    // no nice value found: keep the original value
+    return value;
 }
 
 
 // for vectors: when pertinent, replace a supposed integer value by the nearby int, etc.
 Eigen::VectorXd vectorNumericalCleanUp(const Eigen::VectorXd& original, const double epsilon){
     Eigen::VectorXd outputVector(original);
-    for(unsigned int j=0; j<(unsigned int)outputVector.size(); ++j) {
-
-        // ignore the zero
-        if (fabs(original(j)) < epsilon) {
-            outputVector(j) = 0.0;
-            continue;
-        }
-
-        // round near integers to integers
-        int val = std::lround(original(j));
-        if (fabs(val - original(j)) < epsilon) {
-            outputVector(j) = val;
-            continue;
-        }
-
-        // some negative power of 2
-        const int maxNegPower = 7; // 2^{-6} = 0.015625 or the algebra dimension
-        const double step = pow(2,-maxNegPower);
-        for(double x=val-0.5; x<=val+0.5; x+=step)
-            if(fabs(x - original(j)) < epsilon) {
-                outputVector(j) = x;
-                continue;
-            }
-
-        // if failed to round with integer
-        // round with decimal
-        for(int d=0; d<=10; ++d) {
-            double decimal = -0.5 + d / 10.0;
-            if (fabs(val + decimal - original(j)) < epsilon) {
-                outputVector(j) = val + decimal;
-                continue;
-            }
-        }
-    }
+    for(unsigned int j=0; j<(unsigned int)outputVector.size(); ++j)
+        outputVector(j) = numericalCleanUpValue(original(j), epsilon);
     return outputVector;
 }
 
@@ -299,19 +284,19 @@ Eigen::SparseMatrix<double, Eigen::ColMajor> computePerGradeTransformationMatrix
                 for(unsigned int k=0; k<nextVector.size(); ++k) {
 
                     // index initialisation
-                    unsigned int mvC = 0;
                     unsigned int mvA = currentVector[i];
                     unsigned int mvB = nextVector[k];
 
                     // coefficient computation
                     double coeffA = currentCoeffs[i];
                     double coeffB = vectorTransformationMatrix(sequence[l][j+1],k);
-                    double coeffC = 0.0; // To be changed with the transformation matrix
-                    if((coeffA != 0.0) && (coeffB != 0.0)){
-                        getSignAndBladeOuterProduct(mvC, mvA, mvB, coeffC, coeffA, coeffB);
+
+                    // the outer product of two blades with a common basis vector is null
+                    if((coeffA != 0.0) && (coeffB != 0.0) && ProductTools::outerProductExists(mvA, mvB)){
+                        double coeffC = ProductTools::outerProductSign(mvA, mvB) * coeffA * coeffB;
                         // update the results
                         if(coeffC !=0.0) {
-                            resultIdxTmp.push_back(mvC);
+                            resultIdxTmp.push_back(ProductTools::productResultXorIndex(mvA, mvB));
                             resultCoeffTmp.push_back(coeffC);
                         }
                     }
@@ -325,11 +310,13 @@ Eigen::SparseMatrix<double, Eigen::ColMajor> computePerGradeTransformationMatrix
         }
 
         for(unsigned int idxRes=0; idxRes<currentVector.size(); ++idxRes){
-            if(fabs(currentCoeffs[idxRes])>epsilon)
+            if(std::fabs(currentCoeffs[idxRes])>epsilon)
                 resultSparse.coeffRef(l,xorIndex2Combination[currentVector[idxRes]]) += currentCoeffs[idxRes];
         }
 
     }
+    // remove the entries whose contributions cancelled out
+    resultSparse.prune([epsilon](const Eigen::Index&, const Eigen::Index&, const double &value){ return std::fabs(value) > epsilon; });
     return resultSparse;
 }
 
@@ -362,7 +349,7 @@ Eigen::SparseMatrix<double, Eigen::ColMajor>  computeInverseTransformationMatrix
         Eigen::VectorXd x = solver.solve(vecId);
         // recopy into sparse matrix
         for(unsigned i=0; i<(unsigned int)x.size(); ++i)
-            if(fabs(x(i)) > epsilon)
+            if(std::fabs(x(i)) > epsilon)
                 inverseTransformationMatrix.insert(i,j) = x(i);
     }
 
@@ -373,7 +360,7 @@ Eigen::SparseMatrix<double, Eigen::ColMajor>  computeInverseTransformationMatrix
 // Compute the transformation matrices for grades ranging from 1 to d
 // For each per-grade transformation matrix, we construct a string containing the list of its non-zero elements.
 // We also pick up the number of non zero elements of each sparse matrices, the result is put into transformationMatricesSize
-std::pair<std::vector<double>,std::vector<double>> computeTransformationMatricesToVector(const Eigen::MatrixXd &P, const double epsilon, std::vector<unsigned int>& transformationMatricesSizes,
+std::pair<std::vector<double>,std::vector<double>> computeTransformationMatricesToVector(const Eigen::MatrixXd &P, const double epsilon, std::vector<unsigned int>& transformationMatricesSizes, std::vector<unsigned int>& inverseTransformationMatricesSizes,
                                                                                        std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& allTransformationMatrices,
                                                                                        std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& allInverseTransformationMatrices){
     std::pair<std::vector<double>,std::vector<double>> transformationMatrices; // contains non-inverse and inverse transformation matrices
@@ -392,12 +379,13 @@ std::pair<std::vector<double>,std::vector<double>> computeTransformationMatrices
     currentBasisTransformComponents = transformationMatricesToVectorOfComponents(spscalarTransformationMatrix, 0, true); // inverse transformation matrices
     transformationMatrices.second.insert(std::end(transformationMatrices.second), std::begin(currentBasisTransformComponents), std::end(currentBasisTransformComponents));
     allInverseTransformationMatrices.push_back(spscalarTransformationMatrix);
+    inverseTransformationMatricesSizes.push_back(1);
 
     // push the transformation matrix to the vector of transformation matrices
     Eigen::SparseMatrix<double, Eigen::ColMajor> spVectorTransformationMatrix(P.rows(), P.cols());
     for(unsigned int j=0; j<(unsigned int)P.cols(); ++j)
         for(unsigned int i=0; i<(unsigned int)P.rows(); ++i)
-            if(fabs(P(i,j)) >epsilon) // if non-zero value, insert it
+            if(std::fabs(P(i,j)) >epsilon) // if non-zero value, insert it
                 spVectorTransformationMatrix.insert(i,j)=P(i,j);
     allTransformationMatrices.push_back(spVectorTransformationMatrix);
 
@@ -415,6 +403,7 @@ std::pair<std::vector<double>,std::vector<double>> computeTransformationMatrices
     currentBasisTransformComponents = transformationMatricesToVectorOfComponents(spVectorInverseTransformation, 0, true);
     transformationMatrices.second.insert(std::end(transformationMatrices.second), std::begin(currentBasisTransformComponents), std::end(currentBasisTransformComponents));
     allInverseTransformationMatrices.push_back(spVectorInverseTransformation);
+    inverseTransformationMatricesSizes.push_back((unsigned int)spVectorInverseTransformation.nonZeros());
 
     // remaining transformation matrices
     for(unsigned int i=2;i<=(unsigned int)P.cols();++i){
@@ -436,6 +425,7 @@ std::pair<std::vector<double>,std::vector<double>> computeTransformationMatrices
         currentBasisTransformComponents = transformationMatricesToVectorOfComponents(spPerGradeInverseTransformation, 0, true);
         transformationMatrices.second.insert(std::end(transformationMatrices.second), std::begin(currentBasisTransformComponents), std::end(currentBasisTransformComponents));
         allInverseTransformationMatrices.push_back(spPerGradeInverseTransformation);
+        inverseTransformationMatricesSizes.push_back((unsigned int)spPerGradeInverseTransformation.nonZeros());
     }
     return transformationMatrices;
 }

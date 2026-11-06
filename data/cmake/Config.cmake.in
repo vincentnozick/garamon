@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(Eigen3)
+
+include("${CMAKE_CURRENT_LIST_DIR}/cmake_project_name_original_caseTargets.cmake")
+
+check_required_components(cmake_project_name_original_case)

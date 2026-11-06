@@ -59,7 +59,7 @@ mv3 = ~mv1;                        // reverse operator
 
 // products (operators)
 mv3 = mv1 ^ mv2;                   // outer product
-mv3 = mv1 | mv2;                   // inner product
+mv3 = mv1 | mv2;                   // inner product (Hestenes: the product with a scalar is 0)
 mv3 = mv1 < mv2;                   // left contraction
 mv3 = mv1 > mv2;                   // right contraction
 mv3 = mv1 * mv2;                   // geometric product
@@ -77,7 +77,7 @@ mv1 -= mv2;                        // subtraction operator
 
 // products (explicit)
 mv3 = mv1.scalarProduct(mv2);      // scalar product (sum of inner products between same-grade pairs from mv1 and mv2)
-mv3 = mv1.hestenesProduct(mv2);    // Hestenes product (inner product minus scalar product)
+mv3 = mv1.dotProduct(mv2);         // dot product (inner product including the products with scalars, i.e. 2 . mv = 2 mv)
 mv3 = leftContraction(mv1,mv2);    // left contraction
 mv3 = rightContraction(mv1,mv2);   // right contraction
 mv3 = mv1.inv();                   // inverse function

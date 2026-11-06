@@ -14,7 +14,6 @@
 #ifndef GARAGEN_CONFIG_PARSER_HPP__
 #define GARAGEN_CONFIG_PARSER_HPP__
 
-#include <iostream>
 #include <vector>
 #include <string>
 
@@ -26,8 +25,15 @@ class ConfigParser {
 protected:
     std::string data;
 
+    ConfigParser();
+
 public:
+    /// \brief load the configuration file 'filename', throws std::runtime_error if the file can not be opened
     ConfigParser(const std::string &filename);
+
+    /// \brief build a parser from the content of a configuration file (instead of the file itself)
+    static ConfigParser fromString(const std::string &content);
+
     ~ConfigParser();
 
     bool extract(std::string &extractedData , const std::string &keyword) const;

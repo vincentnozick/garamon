@@ -11,9 +11,21 @@
 #include "ConfigParser.hpp"
 
 #include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <exception>
 #include <fstream>
-#include <sstream>
+#include <ios>
+#include <iostream>
 #include <iterator>
+#include <limits>
+#include <ostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+#include <Eigen/Core>
 
 ConfigParser::ConfigParser(const std::string &filename) {
 
@@ -22,16 +34,27 @@ ConfigParser::ConfigParser(const std::string &filename) {
     myfile.open(filename, std::ios::in);
 
     // check if the file is opened
-    if(!myfile.is_open()){
-        std::cerr << "error: can not open file: " << filename << std::endl;
-        exit(EXIT_FAILURE);
-    }else std::cout << "   open " << filename << " ... ok" << std::endl;
+    if(!myfile.is_open())
+        throw std::runtime_error("can not open file: " + filename);
+    std::cout << "   open " << filename << " ... ok" << std::endl;
 
     // copy the data to a string
     data.assign( (std::istreambuf_iterator<char>(myfile)) , (std::istreambuf_iterator<char>()) );
 
     // close file
     myfile.close();
+
+    // files with Windows line endings: '\r' is just noise for this parser
+    data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
+}
+
+ConfigParser::ConfigParser() {}
+
+ConfigParser ConfigParser::fromString(const std::string &content) {
+    ConfigParser parser;
+    parser.data = content;
+    parser.data.erase(std::remove(parser.data.begin(), parser.data.end(), '\r'), parser.data.end());
+    return parser;
 }
 
 ConfigParser::~ConfigParser() {}
@@ -39,34 +62,41 @@ ConfigParser::~ConfigParser() {}
 bool ConfigParser::extract(std::string &extractedData , const std::string &keyword) const {
 
     // find the starting point of the required data
-    std::size_t start = data.find("<" + keyword + ">");
+    const std::string openingTag = "<" + keyword + ">";
+    std::size_t start = data.find(openingTag);
 
     // check if the keyword was found
     if(start == std::string::npos)
         return false;
-
-    // read the end of the line (keyword + \n)
-    start += ("<" + keyword + ">").size() + 1;
+    start += openingTag.size();
 
     // find the ending point of the required data
     std::size_t end = data.find("</" + keyword + ">", start);
+    if(end == std::string::npos)
+        return false;
 
-    // remove the "\n"
-    end--;
-
-    // copy the data in the output string
+    // copy the data in the output string, without the surrounding blanks (the tags are usually on their own line)
     extractedData = data.substr(start, end-start);
+    const char* blanks = " \t\n\r";
+    std::size_t first = extractedData.find_first_not_of(blanks);
+    if(first == std::string::npos) {
+        extractedData.clear();
+        return true;
+    }
+    std::size_t last = extractedData.find_last_not_of(blanks);
+    extractedData = extractedData.substr(first, last - first + 1);
 
     return true;
 }
 
-std::vector<double> vectorFromString(std::string const& stringData){
+// parse a line of numbers, return false if the line contains something else than numbers
+static bool vectorFromString(std::string const& stringData, std::vector<double> &values){
     std::istringstream iss(stringData);
-
-    return std::vector<double>{
-           std::istream_iterator<double>(iss),
-           std::istream_iterator<double>()
-    };
+    values.clear();
+    double value;
+    while(iss >> value)
+        values.push_back(value);
+    return iss.eof();
 }
 
 bool ConfigParser::readMatrix(const std::string &keyword, Eigen::MatrixXd &mat) const {
@@ -78,35 +108,20 @@ bool ConfigParser::readMatrix(const std::string &keyword, Eigen::MatrixXd &mat) 
     if(!extract(stringTmp,keyword))
         return false;
 
-    // split the string into a vector of vector
-    std::string delimiter = " ";
-    std::string lineDelimiter = "\n";
-    vector.clear();
-    size_t pos = 0;
-
-    // for each line
-    while ((pos = stringTmp.find(lineDelimiter)) != std::string::npos) {
-
-        // remove duplicated delimiter
-        if(pos == 0){
-            stringTmp.erase(0, lineDelimiter.length());
-            continue;
-        }
-
-        // extract a line
-        std::string line = stringTmp.substr(0, pos);
-
-        // add the new detected element
-        vector.push_back(vectorFromString(line));
-
-        // remove the extracted element from the input string
-        stringTmp.erase(0, pos + delimiter.length());
+    // split the string into lines of numbers, ignoring the empty lines
+    std::istringstream lines(stringTmp);
+    std::string line;
+    while(std::getline(lines, line)) {
+        std::vector<double> row;
+        if(!vectorFromString(line, row))
+            return false;
+        if(!row.empty())
+            vector.push_back(row);
     }
 
-    // insert the last element (not followed by a delimiter)
-    if(stringTmp.size() != 0)
-        vector.push_back(vectorFromString(stringTmp));
-
+    // empty matrix
+    if(vector.empty())
+        return false;
 
     // convert the vectors into a matrix
     mat = Eigen::MatrixXd(vector.size(), vector[0].size());
@@ -133,7 +148,19 @@ bool ConfigParser::readUInt(const std::string &keyword, unsigned int &val) const
     val = 0;
     if(!extract(stringTmp,keyword))
         return false;
-    val = std::stoi(stringTmp);
+
+    // only digits are accepted (no sign, no decimal point, no trailing characters)
+    if(stringTmp.empty() || !std::all_of(stringTmp.begin(), stringTmp.end(), [](unsigned char c){return std::isdigit(c) != 0;}))
+        return false;
+
+    try {
+        unsigned long value = std::stoul(stringTmp);
+        if(value > std::numeric_limits<unsigned int>::max())
+            return false;
+        val = (unsigned int) value;
+    } catch(const std::exception&) {
+        return false;
+    }
     return true;
 }
 
@@ -142,7 +169,16 @@ bool ConfigParser::readDouble(const std::string &keyword, double &val) const {
     val = 0;
     if(!extract(stringTmp,keyword))
         return false;
-    val = std::stod(stringTmp);
+
+    try {
+        std::size_t parsed = 0;
+        double value = std::stod(stringTmp, &parsed);
+        if(parsed != stringTmp.size())
+            return false;
+        val = value;
+    } catch(const std::exception&) {
+        return false;
+    }
     return true;
 }
 
@@ -174,30 +210,12 @@ bool ConfigParser::readStringList(const std::string &keyword, std::vector<std::s
     if(!extract(stringTmp,keyword))
         return false;
 
-    // split the string into a vector of string
-    std::string delimiter = " ";
+    // split the string into a vector of string (any blank is a delimiter)
     stringList.clear();
-    size_t pos = 0;
-    while ((pos = stringTmp.find(delimiter)) != std::string::npos) {
-
-        // remove duplicated delimiter
-        if(pos == 0){
-            stringTmp.erase(0, delimiter.length());
-            continue;
-        }
-
-        // add the new detected element
-        stringList.push_back(stringTmp.substr(0, pos));
-
-        // remove the extracted element from the input string
-        stringTmp.erase(0, pos + delimiter.length());
-    }
-
-    // insert the last element (not followed by a delimiter)
-    if(stringTmp.size() != 0)
-        stringList.push_back(stringTmp);
+    std::istringstream iss(stringTmp);
+    std::string word;
+    while(iss >> word)
+        stringList.push_back(word);
 
     return true;
 }
-
-

@@ -1,5 +1,5 @@
 // Copyright (c) 2018 by University Paris-Est Marne-la-Vallee
-// Inner.hpp
+// BasisTransformations.hpp
 // This file is part of the Garamon for project_namespace.
 // Authors: Stephane Breuils and Vincent Nozick
 // Contact: vincent.nozick@u-pem.fr
@@ -17,12 +17,14 @@
 #pragma once
 
 
-#include <Eigen/Sparse>
+#include <Eigen/Core>
+#include <Eigen/SparseCore>
 #include <vector>
 #include <array>
 #include <algorithm>
 #include <iterator>
 #include <sstream>
+#include <string>
 
 
 /*!
@@ -35,8 +37,9 @@ namespace project_namespace{
 	const std::vector<T> decodeStringToVecOfT(std::string encodedPerGradeMatrixComponents) {
 	    std::vector<T> resultDecodedGrade;
 	    std::istringstream streamStringOverFloat(encodedPerGradeMatrixComponents);
-	    std::copy(std::istream_iterator<float>(streamStringOverFloat),
-		std::istream_iterator<float>(),
+	    // parse as double (full precision), then convert to T
+	    std::copy(std::istream_iterator<double>(streamStringOverFloat),
+		std::istream_iterator<double>(),
 		std::back_inserter(resultDecodedGrade));
 	    return resultDecodedGrade;
 	}

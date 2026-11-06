@@ -9,18 +9,21 @@
 
 #include "Utilities.hpp"
 
-
-// compute the factorial
-unsigned int factorial(unsigned int n) {
-    return (n <= 1) ? 1 : n * factorial(n - 1);
-}
+#include <algorithm>
+#include <cstddef>
+#include <iomanip>
+#include <limits>
+#include <sstream>
+#include <string>
+#include <vector>
 
 
 // New version: Iterative version of the binomial Coefficient without computing the factorial
 unsigned int bin_coeff(unsigned int n, unsigned int k) {
     if(k>n) return 0;
 
-    unsigned int res = 1;
+    // 64 bits intermediate results: res * (n-i) overflows 32 bits from C(31,15) on
+    unsigned long long res = 1;
     // Because C(n, k) = C(n, n-k)
     if (k > n - k)
         k = n - k;
@@ -29,7 +32,7 @@ unsigned int bin_coeff(unsigned int n, unsigned int k) {
         res *= (n - i);
         res /= (i + 1);
     }
-    return res;
+    return (unsigned int)res;
 }
 
 
@@ -39,53 +42,15 @@ void computePerGradeStartingIndex(const unsigned int &dimension, std::vector<int
 
     currentIndex += bin_coeff(dimension, currentGrade);
     perGradeStartingIndex.push_back(currentIndex);
-    if(currentGrade < (dimension-1)){
+    if(currentGrade + 1 < dimension){ // (not 'currentGrade < dimension-1': unsigned underflow for dimension 0)
         computePerGradeStartingIndex(dimension,perGradeStartingIndex,currentIndex, currentGrade+1);
-    }
-}
-
-
-unsigned int hammingWeight(unsigned int word){
-    return __builtin_popcount(word);
-}
-
-
-int computeSign(const unsigned int mv1, const unsigned int mv2){
-    unsigned int nbOfOnes = 0;
-    unsigned int tmpmva = mv1;
-    tmpmva = tmpmva >> 1;
-    while(tmpmva!=0){
-        // Count number of ones in common
-        nbOfOnes += hammingWeight(tmpmva & mv2);
-        tmpmva = tmpmva >> 1;
-    }
-    return (-2*(nbOfOnes%2))+1;
-}
-
-
-// mv1 and mv2 are binary expression of some basis vectors (i.e. e23 -> 0110)
-// this function computes the binary expression of the basis vector containing the result of mv1^mv2,
-// as well as the sign corresponding to the number of permutations required to order mv1^mv2.
-unsigned int outerProductBinaryComponents(const unsigned int mv1, const unsigned int mv2, int &sign){
-    sign = computeSign(mv1, mv2);
-    return mv1^mv2;
-}
-
-
-void getSignAndBladeOuterProduct(unsigned int& mvC, const unsigned int mvA, const unsigned int mvB, double& coeffC, const double coeffA, const double coeffB){
-
-    int sign = 1;
-
-    if( (mvA & mvB) == 0){ // if mvA and mvB has some common vector basis, the outer product will be 0
-        mvC = outerProductBinaryComponents(mvA, mvB, sign);
-        coeffC += sign * coeffA * coeffB;
     }
 }
 
 
 std::vector<unsigned int> getSetOfCombinationsFromXorIndexation(const int dim, const std::vector<std::vector<unsigned int> >& combinations){
 
-    std::vector<unsigned int> setOfCombinationsFromXorIndex((unsigned int)1 << dim);
+    std::vector<unsigned int> setOfCombinationsFromXorIndex(std::size_t(1) << dim);
 
     // for each possible sequence
     for(unsigned int i=0; i<combinations.size(); ++i){
@@ -132,4 +97,11 @@ std::vector<std::vector<unsigned int> > generateCombinations(const unsigned int 
     } while(std::prev_permutation(v.begin(), v.end())); // compute next permutation of the true values of v
 
     return sequence;
+}
+
+
+std::string doubleToString(const double value){
+    std::ostringstream stream;
+    stream << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
+    return stream.str();
 }

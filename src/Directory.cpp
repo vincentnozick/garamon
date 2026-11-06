@@ -10,68 +10,30 @@
 
 #include "Directory.hpp"
 
-#include <iostream>
-#include <cstdlib>
+#include <cstddef>
+#include <filesystem>
 #include <fstream>
-#include <sstream>
-#include <sys/types.h> // required for stat.h
-#include <sys/stat.h>
-#include <regex>       // for substitute
+#include <iostream>
+#include <iterator>
+#include <stdexcept>
+#include <string>
+#include <system_error>
 
-
-#if defined(_WIN32) && (defined(__MINGW32__) || defined(_MSC_BUILD))
-	#include <direct.h>
-	#include <io.h>
-#endif // __WINDOWS Mingw or MSVC compiler__
+namespace fs = std::filesystem;
 
 
 void makeDirectory(const std::string &dirName) {
 
-    int nError = 0;
-
-#if defined(_WIN32)
-	nError = _mkdir(dirName.c_str()); // can be used on Windows
-#else
-    mode_t nMode = 0733; // UNIX style permissions
-    nError = mkdir(dirName.c_str(), nMode); // can be used on non-Windows
-#endif
-
-    // handle your error here
-    if (nError != 0) {
-        std::cerr << "error: can not create directory: " << dirName << std::endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
-
-bool directoryExists(const std::string &dirName) {
-
-    struct stat info;
-
-    if(stat( dirName.c_str(), &info ) != 0)
-        return false; // cannot access to the directory
-
-    if(info.st_mode & S_IFDIR) // in case of problem, check with: S_ISDIR()
-        return true;
-
-    return false;  // file exists but is not a directory
+    // fails if the directory already exists or if its parent directory is missing (not recursive)
+    std::error_code error;
+    if(!fs::create_directory(dirName, error))
+        throw std::runtime_error("can not create directory: " + dirName);
 }
 
 
 bool directoryOrFileExists(const std::string &dirName) {
-
-    struct stat info;
-
-    if(stat( dirName.c_str(), &info ) == 0)
-        return true; // can access to the directory or file
-
-    return false;
-}
-
-
-bool directoryOrFileExists_ifstream (const std::string& name) {
-    std::ifstream f(name.c_str());
-    return f.good();
+    std::error_code error; // (an inaccessible path does not exist)
+    return fs::exists(dirName, error);
 }
 
 
@@ -82,8 +44,7 @@ std::string readFile(const std::string &fileName) {
 
     // check if the file is opened
     if(!myfile.is_open()){
-        std::cerr << "error: can not open file: " << fileName << std::endl;
-        exit(EXIT_FAILURE);
+        throw std::runtime_error("can not open file: " + fileName);
     }
 
     // copy the data to a string
@@ -116,25 +77,32 @@ bool writeFile(const std::string &data, const std::string &fileName) {
 
 void substitute(std::string &data, const std::string &pattern, const std::string &replaceBy) {
 
-    data = std::regex_replace(data, std::regex(pattern), replaceBy);
+    // literal replacement of all the occurrences of 'pattern' (neither 'pattern' nor 'replaceBy' are interpreted)
+    if(pattern.empty())
+        return;
+
+    std::string result;
+    result.reserve(data.size());
+    std::size_t start = 0;
+    std::size_t pos;
+    while((pos = data.find(pattern, start)) != std::string::npos) {
+        result.append(data, start, pos - start);
+        result += replaceBy;
+        start = pos + pattern.size();
+    }
+    result.append(data, start, std::string::npos);
+    data.swap(result);
 }
 
 
-bool copyBin(const std::string &src, const std::string &dest) {
+std::string joinPath(const std::string &directory, const std::string &name) {
 
-    std::ifstream srcFile(src, std::ios::binary);
-    std::ofstream destFile(dest, std::ios::binary);
-    destFile << srcFile.rdbuf();
+    if(directory.empty())
+        return name;
 
-    return srcFile && destFile;
-}
+    const char last = directory.back();
+    if(last == '/' || last == '\\')
+        return directory + name;
 
-
-bool copyText(const std::string &src, const std::string &dest) {
-
-    std::ifstream srcFile(src);
-    std::ofstream destFile(dest);
-    destFile << srcFile.rdbuf();
-
-    return srcFile && destFile;
+    return directory + "/" + name;
 }

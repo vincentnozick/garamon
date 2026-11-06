@@ -15,11 +15,11 @@
 #ifndef GARAGEN_METADATA_HPP__
 #define GARAGEN_METADATA_HPP__
 
-#include <iostream>
 #include <vector>
 #include <string>
 #include <Eigen/Core>
-#include "MetricTools.hpp"
+
+class ConfigParser;
 
 // data required to build a Geometric Algebra Library
 class MetaData
@@ -30,7 +30,7 @@ public:
     std::string namespaceName;
 
     // dimension of the algebra vector space (grade 1)
-    unsigned int dimension;
+    unsigned int dimension = 0;
 
     // metric = inner product of vectors, should be a symetric matrix
     Eigen::MatrixXd metric;
@@ -40,33 +40,33 @@ public:
     std::vector<std::string> basisVectorName;
 
     // true if the proposed metric is diagonal
-    bool inputMetricDiagonal;
+    bool inputMetricDiagonal = false;
 
     // true if the final (or initial) diagonal metric is actually identity
-    bool identityMetric;
+    bool identityMetric = false;
 
     // true if the metric has rank = dimension of the vector space supporting the algebra
-    bool fullRankMetric;
+    bool fullRankMetric = false;
 
     // true if the initial metric is a permutation of a diagonal matrix
-    bool inputMetricPermutationOfDiagonal;
+    bool inputMetricPermutationOfDiagonal = false;
 
     // numerical refinement of the eigen vectors / values
-    bool useEigenRefinement;
+    bool useEigenRefinement = true;
 
     // replace near zeros by zeros, near integers by integers, ...
-    bool useNumericalCleanUp;
+    bool useNumericalCleanUp = true;
 
     // Each multivector component of grade k can have a dedicated precomputed product if its cardinality (max number of element of grade k) is lower than this threshold.
     // Else, the product is performed recursively (this is only for high dimensional Geometric Algebra).
-    unsigned int maxDimPrecomputedProducts;
+    unsigned int maxDimPrecomputedProducts = 256;
 
     // Each multivector component of grade k can have a dedicated basis accessor constant (E123 in "mv[E123]=42;") if its cardinality (max number of element of grade k) is lower than this threshold.
     // Else, this accessor is not created (this is only for high dimensional Geometric Algebra).
-    unsigned int maxDimBasisAccessor;
+    unsigned int maxDimBasisAccessor = 256;
 
     // numerical threshold for the numerical clean up
-    double epsilon;
+    double epsilon = 1.0e-7;
 
     // diagonal form of the metric after eigen vector/value decomposition
     Eigen::VectorXd diagonalMetric;
@@ -83,7 +83,11 @@ public:
 
     MetaData();
 
+    /// \brief load, check and analyse the configuration file 'filename'. Throws std::runtime_error on failure.
     MetaData(const std::string &filename);
+
+    /// \brief load, check and analyse the configuration given by 'parser'. Throws std::runtime_error on failure.
+    MetaData(const ConfigParser &parser);
 
     ~MetaData();
 

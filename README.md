@@ -16,7 +16,10 @@ Install
 
 ## Dependencies
     * 'Eigen 3.3.4'  or more [Eigen](http://eigen.tuxfamily.org)
-    * 'Cmake 3.10' or more
+    * 'CLI11 2.7.2'  or more [CLI11](https://github.com/CLIUtils/CLI11)
+    * 'CMake 3.24' or more
+    * 'Catch2 3' or more [Catch2](https://github.com/catchorg/Catch2) (only for the unit tests, downloaded if not found)
+    * 'pybind11' (only for building the Python bindings of a generated library, install with 'pip install pybind11'; requires CMake 3.18 or more)
 
 ## Compiler tested
     * gcc 5.4.0
@@ -60,29 +63,72 @@ Install
 Usage
 =====
 
+```sh
+~/garamon/build$ ./garamon_generator --help
+GARAMON: Geometric Algebra Recursive and Adaptative MONster Generator
+
+./garamon_generator [OPTIONS]
+
+OPTIONS:
+  -h,  --help                      Print this help message and exit
+  -c,  --config REQUIRED           Configuration file, e.g. "garamon/conf/c3ga.conf"
+  -t,  --template REQUIRED         Template directory, e.g. "garamon/data/"
+  -o,  --output REQUIRED           Output directory, e.g. "garamon/build/output/"
+
+~/garamon/build$
+```
+
 ## Generate a library
 
     * define the algebra to generate: chose a configuration file (.conf) on the 'conf' directory or create your own.
     * run the binary executable (from the 'build' directory) with the configuration file as argument
-      > ./garamon_generator file.conf
+      > ./garamon_generator -c ../conf/ga.conf -t ../data/ -o ./output/
     * the generated library is located in 'build/output' directory
     * to install the generated library, see its README.md
 
-## Run the Python binding sample for a specific algebra for UNIX system
+## Run the Python binding sample for a specific algebra
 Let us consider the considered algebra is CGA of R3 corresponding to the configuration file c3ga.conf. 
 
-    * Check the dependencies
+    * Check the dependencies (in particular `pip install pybind11`, Python 3 development headers and CMake 3.18 or more)
     * From Garamon Generator root directory
     	* 'mkdir build'
     	* 'cd build'
     	* 'cmake ..'
     	* 'make'
-    	* './garamon_generator ../conf/c3ga.conf'
+        * './garamon_generator -c ../conf/c3ga.conf -t ../data/ -o ./output/'
     	* 'cd output/garamon_c3ga/'
-    	* 'python setup.py build'
-    	* 'python setup.py install'
-    	* 'cd sample'
-    	* 'python sample.py'
+    	* 'cmake -S . -B build -DBUILD_PYTHON=ON' (¹) (²)
+    	* 'cmake --build build --config Release'
+    	* 'cmake --build build --config Release --target python_sample' (runs 'sample/sample.py' with the just-built module)
+    	* (optional) 'cmake --install build --config Release --component python' (²) to make the module importable from anywhere, then:
+    		* 'cd sample'
+    		* 'python sample.py'
+
+(1) The `cmake -S ...` command requires the Eigen3 library. It will fail if it can't find it.
+You might need to add the `-DCMAKE_PREFIX_PATH=/path/to/eigen3` parameter to point to where the library is.
+
+(2) The module is installed into the site-packages of the Python interpreter found by CMake, which usually requires admin rights (`sudo`, or an elevated terminal on Windows).
+Either install to your per-user site-packages instead, by adding `-DPYTHON_USER_INSTALL=ON` to the `cmake -S ...` command,
+or activate a virtual environment (`python -m venv .venv`) before the `cmake -S ...` command: CMake then uses it and installs the module there.
+
+
+Tests
+=====
+
+The unit tests use [Catch2](https://github.com/catchorg/Catch2) (v3) and CTest. They are built by default (CMake option `GARAMON_BUILD_TESTS`):
+
+```sh
+~/garamon$ cmake -S . -B build
+~/garamon$ cmake --build build
+~/garamon$ ctest --test-dir build --output-on-failure
+```
+
+* `generator_tests`: unit tests of the generator itself (configuration parser, metric analysis, product tables, code generation, ...)
+* `<algebra>_tests`: the algebras `c3ga`, `c5ga`, `e3ga` and `p3ga`, as well as two test algebras with a non-normalized and a non-orthogonal metric (`tests/conf/`), are generated at build time; each generated library is compared with an independent reference implementation of the geometric algebra (`tests/algebras/reference/CliffordReference.hpp`)
+* `<algebra>: sample`: the generated sample program is compiled and run.
+
+To run a part of the tests, e.g. the c3ga dual tests: `build/tests/c3ga_tests "[dual]"`, or `ctest --test-dir build -R c3ga`.
+
 
 Notes
 =====

@@ -15,8 +15,12 @@
 #ifndef GARAGEN_PRODUCTTOSTRING_HPP
 #define GARAGEN_PRODUCTTOSTRING_HPP
 
+#include <list>
 #include <string>
 #include <vector>
+
+#include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include "MetaData.hpp"
 #include "ProductTools.hpp"
@@ -48,8 +52,6 @@ std::string callAllDirectOrInverseMatricesFunctions(const std::vector<unsigned i
 
 std::string loadAllDualCoefficientsArray(const std::vector<int> & sizeDualCoefficientsArray, const std::string& stringDualCoefficientsComponents);
 
-std::string dualPermutationToString(const std::vector<double>& basisChangesComponents);
-
 std::string staticOneComponentMultivectorPrototypePython();
 
 std::string staticOneComponentMultivectorPrototype();
@@ -67,7 +69,7 @@ std::string reverseSignArrayToString(const unsigned int &dimension);
 std::string xorIndexToGradeAndHomogeneousIndexArraysToString(unsigned int dimension, const ProductTools& product);
 
 std::string fastDualUtilities(unsigned int dimension, const ProductTools& product,
-                                        const Eigen::VectorXd &diagonalMetric, double scaleInversePseudoScalar,std::string srcDirectory,
+                                        const Eigen::VectorXd &diagonalMetric, double scaleInversePseudoScalar,const std::string &srcDirectory,
                                         std::string& fastDualComponents);
 
 
@@ -76,7 +78,7 @@ std::string fastDualUtilitiesBasisChange(unsigned int dimension, const ProductTo
                                          const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& inverseTransformationMatrices,
                                          const Eigen::VectorXd &diagonalMetric,
                                          double scaleInversePseudoScalar,
-                                         std::string srcDirectory,
+                                         const std::string &srcDirectory,
                                          std::string& fastDualComponents);
 
 
@@ -84,86 +86,53 @@ std::string fastRightComplementUtilities(const unsigned int dimension, const Pro
                                          std::string &fastDualComponents);
 
 
-std::string primalWedgeDualUtilities(const unsigned int dimension, const ProductTools& product,
-                                     const Eigen::VectorXd &diagonalMetric,
-                                     double scaleInversePseudoScalar);
-
-std::string primalWedgeDualUtilitiesBasisChange(unsigned int dimension, const ProductTools& product,
-                                     const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& transformationMatrices,
-                                     const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> >& inverseTransformationMatrices,
-                                     const Eigen::VectorXd &diagonalMetric,
-                                     double scaleInversePseudoScalar);
-
 std::string basisTransformMatricesLoad();
 
 std::string multivectorComponentBuilder(const MetaData& metaData, const std::string &data);
 
 std::string diagonalMetricToString(const MetaData& metaData);
 
-std::string templateVectorToOrthogonalBasisToString();
-
-std::string templateTransformVectorToOrthogonalBasisToString();
-
-std::string templateTransformVectorToOriginalBasisToString();
-
 std::string outerProductExplicitComments(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3);
 
-std::string outerProductExplicitPrototype(const unsigned int gradeMv1, const unsigned int gradeMv2);
-
 std::string productListToString(std::list<productComponent<double>> &listOfExplicitProducts);
+
+// round the coefficients of a list of products to "nice" values (see numericalCleanUpValue) and remove the null products
+void cleanUpProductList(std::list<productComponent<double>> &listOfProducts, const double epsilon);
+
+// true if the explicit geometric product function geometric_[gradeMv1]_[gradeMv2]_[gradeMv3] is generated (and referenced by the function pointers)
+bool geometricProductFunctionExists(const MetaData &metaData, const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3);
 
 std::string generateOuterRecursive(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3);
 
 std::string generateOuterExplicit_cpp(const MetaData &metaData, const ProductTools& product);
 
+std::string productFunctionPointerType();
+
 std::string generateOuterExplicitFunctionsPointer(const unsigned int &dimension);
-
-std::string generateOuterExplicit_simd_64(const MetaData &metaData, const ProductTools& product);
-
-std::string generateOuterExplicitFunctionsPointer_simd_64(const unsigned int &dimension);
-
-std::string generateOuterExplicit_simd_32(const MetaData &metaData, const ProductTools& product);
-
-std::string generateOuterExplicitFunctionsPointer_simd_32(const unsigned int &dimension);
 
 std::string innerProductExplicitComments(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3);
 
 std::string generateInnerRecursiveBasisChange(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3,
                                               const unsigned int dimension);
 
-std::string generateInnerRecursiveBasisChangeFloat64(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3,
-                                              const unsigned int dimension);
-
 std::string generateInnerRecursive(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3);
-
-std::string generateInnerRecursiveFloat64(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMv3);
 
 std::string generateInnerExplicit_cpp(const MetaData &metaData,
                                       const ProductTools& product);
 
 std::string generateInnerExplicitBasisChange_cpp(const MetaData &metaData,
-                                      std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> > transformationMatrices,
-                                      std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> > inverseTransformationMatrices,
+                                      const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> &transformationMatrices,
+                                      const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> &inverseTransformationMatrices,
                                       const ProductTools& product);
 
 std::string generateInnerExplicitFunctionsPointer(const unsigned int &dimension);
-
-std::string generateInnerExplicit_simd_64(const MetaData &metaData,
-                                          const ProductTools& product);
-
-std::string generateInnerExplicitBasisChange_simd_64(const MetaData &metaData,
-                                          std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> > transformationMatrices,
-                                          std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor> > inverseTransformationMatrices,
-                                          const ProductTools& product);
-
-std::string generateInnerExplicitFunctionsPointer_simd_64(const unsigned int &dimension);
 
 std::string geometricProductExplicitComments(const unsigned int gradeMv1, const unsigned int gradeMv2, const unsigned int gradeMvResult);
 
 
 std::string generateGeometricExplicitBasisChange_cpp(const MetaData &metaData,
-                                          std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> transformationMatrices,
-                                          std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> inverseTransformationMatrices,
+                                          const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> &transformationMatrices,
+                                          const std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> &inverseTransformationMatrices,
                                           const ProductTools& product);
 
 std::string generateGeometricExplicit_cpp(const MetaData &metaData,
@@ -172,18 +141,6 @@ std::string generateGeometricExplicit_cpp(const MetaData &metaData,
 std::string generateGeometricExplicitFunctionsPointer(const MetaData &metaData);
 
 std::string recursiveGeometricProductCallToString(const unsigned int maxSize, bool changeMetricToOrtrhogonal);
-
-std::string recursiveGeometricProductCallToStringFloat64(const unsigned int maxSize, bool changeMetricToOrtrhogonal);
-
-std::string generateGeometricExplicit_simd_64(const MetaData &metaData,
-                                              const ProductTools& product);
-
-std::string generateGeometricExplicitBasisChange_simd_64(const MetaData &metaData,
-                                              std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> transformationMatrices,
-                                              std::vector<Eigen::SparseMatrix<double, Eigen::ColMajor>> inverseTransformationMatrices,
-                                              const ProductTools& product);
-
-std::string generateGeometricExplicitFunctionsPointer_simd_64(const MetaData &metaData);
 
 
 #endif //GARAGEN_PRODUCTTOSTRING_HPP

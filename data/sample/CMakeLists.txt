@@ -1,59 +1,31 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(cmake_project_name_sample)
 
-# set the module path for "findLib.cmake"
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
-
-# require Eigen
-find_package(Eigen3 REQUIRED)
-if(${EIGEN3_FOUND})
-    message(STATUS "lib EIGEN3 found")
-    message(STATUS "  version " ${EIGEN3_VERSION_STRING})
-    message(STATUS "  include " ${EIGEN3_INCLUDE_DIR})
+# default build type of the single-config generators (Ninja, Makefiles), overridable with -DCMAKE_BUILD_TYPE=...
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-# require lib cmake_project_name_original_case
-find_package(cmake_project_name_upper_case)
-if(${cmake_project_name_upper_case_FOUND})
-    message(STATUS "lib cmake_project_name_upper_case found")
-    message(STATUS "  include " ${cmake_project_name_upper_case_INCLUDE_DIRS})
-    message(STATUS "  lib     " ${cmake_project_name_upper_case_LIBRARIES})
-else()
-    message(STATUS "lib cmake_project_name_upper_case should be set manually, please uncomment the commented lines in the CMakeLists.txt file")
-    #set(cmake_project_name_upper_case_INCLUDE_DIRS "[path to]/garamon_cmake_project_name_original_case/src/")
-    #set(cmake_project_name_upper_case_LIBRARIES "[path to]/garamon_cmake_project_name_original_case/build/libcmake_project_name_original_case.dylib")
+# no compiler extensions (-std=c++20, not -std=gnu++20;
+# the C++ standard comes from the cmake_project_name_original_case::cmake_project_name_original_case target)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-    # for manual setting, check if valid
-    if(EXISTS "${cmake_project_name_upper_case_INCLUDE_DIRS}")
-        message(STATUS "include for lib cmake_project_name_original_case found: ${cmake_project_name_upper_case_INCLUDE_DIRS}" )
-    else()
-        message(FATAL_ERROR "include for lib cmake_project_name_original_case invalid or not found: ${cmake_project_name_upper_case_INCLUDE_DIRS}" )
-    endif()
-
-    # for manual setting, check if valid
-    if(EXISTS "${cmake_project_name_upper_case_LIBRARIES}")
-        message(STATUS "library cmake_project_name_original_case found: ${cmake_project_name_upper_case_LIBRARIES}" )
-    else()
-        message(FATAL_ERROR "library cmake_project_name_original_case not found: ${cmake_project_name_upper_case_LIBRARIES}" )
-    endif()
-endif()
+# require lib cmake_project_name_original_case (header-only, brings Eigen along)
+# > set CMAKE_PREFIX_PATH to the cmake_project_name_original_case install prefix (and to Eigen if not found otherwise)
+find_package(cmake_project_name_original_case CONFIG REQUIRED)
+message(STATUS "lib cmake_project_name_original_case ${cmake_project_name_original_case_VERSION} found: ${cmake_project_name_original_case_DIR}")
 
 
 # compile
 add_executable(cmake_project_name_sample src/main.cpp)
 
-# compilation flags
-target_compile_features(cmake_project_name_sample PRIVATE cxx_std_14) 
-target_compile_options(cmake_project_name_sample PRIVATE -Wall -O2) 
-
-# includes
-include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(${cmake_project_name_upper_case_INCLUDE_DIRS})
+# warnings (the optimization level comes from the build type)
+if(MSVC)
+    target_compile_options(cmake_project_name_sample PRIVATE /W3)
+else()
+    target_compile_options(cmake_project_name_sample PRIVATE -Wall)
+endif()
 
 # link
-target_link_libraries(cmake_project_name_sample ${cmake_project_name_upper_case_LIBRARIES})
-
-
-
-
+target_link_libraries(cmake_project_name_sample PRIVATE cmake_project_name_original_case::cmake_project_name_original_case)

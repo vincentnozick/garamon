@@ -8,16 +8,23 @@
 // A a copy of the MIT License is given along with this program
 
 
-#include <math.h>
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <iostream>
+#include <ostream>
 #include <set>
+#include <stdexcept>
+#include <string>
 
-#include <Eigen/Eigenvalues>
+#include <Eigen/Core>
 
 #include "MetaData.hpp"
 #include "ConfigParser.hpp"
+#include "MetricTools.hpp"
 
 
-MetaData::MetaData() : dimension(0), inputMetricDiagonal(false), identityMetric(false), inputMetricPermutationOfDiagonal(false), maxDimPrecomputedProducts(256) {}
+MetaData::MetaData() {}
 
 MetaData::~MetaData() {}
 
@@ -63,10 +70,18 @@ bool MetaData::checkConsistency() const {
         consistencyCheck = false;
     }
 
+    // the multivectors are indexed with 32 bits xor indices
+    if(dimension > 31){
+        std::cout << "error: dimension should not be higher than 31." << std::endl;
+        consistencyCheck = false;
+    }
+
     // basis vector name dimension consistency
+    bool basisNamesConsistent = true;
     if(basisVectorName.size() != dimension){
         std::cout << "error: 'basis vector name' size is not consistent with 'dimension'." << std::endl;
         consistencyCheck = false;
+        basisNamesConsistent = false;
     }
 
     // metric empty
@@ -98,7 +113,7 @@ bool MetaData::checkConsistency() const {
             bool symetric = true;
             for(unsigned int i=0; i<(unsigned int)metric.rows(); ++i)
                 for(unsigned int j=i; j<(unsigned int)metric.cols(); ++j)
-                    if(fabs(metric(i,j) - metric(j,i)) > epsilon)
+                    if(std::fabs(metric(i,j) - metric(j,i)) > epsilon)
                         symetric = false;
             if (!symetric) {
                 std::cout << "error: the metric is not a symmetric matrix." << std::endl;
@@ -109,96 +124,86 @@ bool MetaData::checkConsistency() const {
 
     // check if the name of the vector basis are not ambiguous for high dimensions
     // i.e. in dimension 15: e12 is for twelve or one-two ?
-    std::set<std::string> basis;
+    // (only possible if there is one name per basis vector)
+    if(basisNamesConsistent && dimension > 0 && dimension <= 31) {
+        std::set<std::string> basis;
 
-    // represent a k-vector with a binary number (k-st bit to 1 means the k-st basis is used)
-    for(unsigned int i=1; i<=pow(2,dimension); ++i){
+        // represent a k-vector with a binary number (k-st bit to 1 means the k-st basis is used)
+        for(unsigned int i=1; i < (1u << dimension); ++i){
 
-        std::string kvector;
-        for(unsigned int k=0; k<dimension; ++k)
-            if(i & (1 << k))
-                kvector = kvector + basisVectorName[k];
+            std::string kvector;
+            for(unsigned int k=0; k<dimension; ++k)
+                if(i & (1u << k))
+                    kvector = kvector + basisVectorName[k];
 
-        if(basis.count(kvector) != 0){
-            std::cout << "error in the basis vector name: " << kvector << " is ambiguous." << std::endl;
-            consistencyCheck = false;
-        }else{
-            basis.insert(kvector);
+            if(basis.count(kvector) != 0){
+                std::cout << "error in the basis vector name: " << kvector << " is ambiguous." << std::endl;
+                consistencyCheck = false;
+            }else{
+                basis.insert(kvector);
+            }
         }
+
+        // the basis vector names are part of C++ identifiers (e.g. E12, e12())
+        for(const auto &name : basisVectorName)
+            if(!std::all_of(name.begin(), name.end(), [](unsigned char c){return std::isalnum(c) || c == '_';})){
+                std::cout << "error in the basis vector name: '" << name << "' should contain only letters, digits or '_'." << std::endl;
+                consistencyCheck = false;
+            }
     }
 
     // namespace name compatible with C++
-    if(isalpha(namespaceName[0]) == 0){
+    if(namespaceName.empty() || std::isalpha((unsigned char)namespaceName[0]) == 0){
         std::cout << "error in the namespace name: the first character of '" << namespaceName << "' should be an alphabetic letter for C++ compliance." << std::endl;
+        consistencyCheck = false;
+    }else if(!std::all_of(namespaceName.begin(), namespaceName.end(), [](unsigned char c){return std::isalnum(c) || c == '_';})){
+        std::cout << "error in the namespace name: '" << namespaceName << "' should contain only letters, digits or '_' for C++ compliance." << std::endl;
         consistencyCheck = false;
     }
 
     return consistencyCheck;
 }
 
-MetaData::MetaData(const std::string &filename):inputMetricDiagonal(false), identityMetric(false) {
+MetaData::MetaData(const std::string &filename) : MetaData(ConfigParser(filename)) {}
 
-    // open the parser
-    ConfigParser parser(filename);
+MetaData::MetaData(const ConfigParser &parser) {
 
     // load all components of the meta data
-    if(!parser.readString("namespace", namespaceName)) {
-        std::cerr << "error: failed to find " << "namespace" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readString("namespace", namespaceName))
+        throw std::runtime_error("failed to find namespace");
 
-    if(!parser.readUInt("dimension", dimension)){
-        std::cerr << "error: failed to find " << "dimension" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readUInt("dimension", dimension))
+        throw std::runtime_error("failed to find dimension");
 
-    if(!parser.readUInt("max dimension precomputed products", maxDimPrecomputedProducts)){
-        std::cerr << "error: failed to find " << "max dimension precomputed products" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readUInt("max dimension precomputed products", maxDimPrecomputedProducts))
+        throw std::runtime_error("failed to find max dimension precomputed products");
 
-    if(!parser.readUInt("max dimension basis accessor", maxDimBasisAccessor)){
-        std::cerr << "error: failed to find " << "max dimension basis accessor" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readUInt("max dimension basis accessor", maxDimBasisAccessor))
+        throw std::runtime_error("failed to find max dimension basis accessor");
 
-    if(!parser.readStringList("basis vector name", basisVectorName)){
-        std::cerr << "error: failed to find " << "basis vector name" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readStringList("basis vector name", basisVectorName))
+        throw std::runtime_error("failed to find basis vector name");
 
-    if(!parser.readMatrix("metric", metric)){
-        std::cerr << "error: failed to find " << "metric" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readMatrix("metric", metric))
+        throw std::runtime_error("failed to find metric");
 
-    if(!parser.readBool("metric decomposition refinement", useEigenRefinement)){
-        std::cerr << "error: failed to find " << "metric decomposition refinement" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readBool("metric decomposition refinement", useEigenRefinement))
+        throw std::runtime_error("failed to find metric decomposition refinement");
 
-    if(!parser.readBool("metric decomposition numerical cleanup", useNumericalCleanUp)){
-        std::cerr << "error: failed to find " << "metric decomposition numerical cleanup" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readBool("metric decomposition numerical cleanup", useNumericalCleanUp))
+        throw std::runtime_error("failed to find metric decomposition numerical cleanup");
 
-    if(!parser.readDouble("metric decomposition numerical cleanup espilon", epsilon)){
-        std::cerr << "error: failed to find " << "metric decomposition numerical cleanup espilon" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!parser.readDouble("metric decomposition numerical cleanup espilon", epsilon))
+        throw std::runtime_error("failed to find metric decomposition numerical cleanup espilon");
 
     // check the data consistency
-    if(!checkConsistency()){
-        std::cerr << "configuration inconsistent ... abord" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!checkConsistency())
+        throw std::runtime_error("configuration inconsistent ... abort");
 
     // metric diagonalization
-    if(!metricDiagonalization()){
-        std::cerr << "metric diagonalization ... failed" << std::endl;
-        std::cerr << "Please try again without the metric decomposition refinement or without the numerical cleanup." << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if(!metricDiagonalization())
+        throw std::runtime_error("metric diagonalization ... failed\n"
+                                 "Please try again without the metric decomposition refinement or without the numerical cleanup.");
 }
 
 

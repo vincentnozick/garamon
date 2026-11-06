@@ -19,14 +19,18 @@
 
 // External Includes
 #include <Eigen/Core>
+#include <algorithm>
 #include <list>
 #include <iostream>
 #include <cmath>
 #include <limits>
+#include <string>
+#include <type_traits>
+#include <vector>
 
-// Internal Includes
-#include "project_namespace/Utility.hpp"
-#include "project_namespace/Constants.hpp"
+// Internal Includes (Mvec.hpp is the header to include to use the library: it exports the constants and the utilities)
+#include "project_namespace/Utility.hpp"   // IWYU pragma: export
+#include "project_namespace/Constants.hpp" // IWYU pragma: export
 
 #include "project_namespace/Outer.hpp"
 #include "project_namespace/Inner.hpp"
@@ -40,6 +44,12 @@
  * @namespace project_namespace
  */
 namespace project_namespace{
+
+    /// \brief the scalar types a multivector can be constructed from or combined with (e.g. 2.0 * mv):
+    /// the arithmetic types only, so that the implicit constructor Mvec(S) does not make any other type
+    /// (e.g. a char *) convertible to a multivector
+    template<typename S>
+    concept Scalar = std::is_arithmetic_v<S>;
 
 
     /// \class Kvec
@@ -88,11 +98,11 @@ namespace project_namespace{
         /// \brief Copy constructor of Mvec from different types
         /// \param mv - the multivector with another template type
         template<typename U>
-        Mvec<T>(const Mvec<U> &mv);
+        Mvec(const Mvec<U> &mv);
 
         /// \brief Constructor of Mvec from a scalar
         /// \param val - scalar value
-        template<typename S>
+        template<Scalar S>
         Mvec(const S val);
 
         /// Destructor
@@ -116,14 +126,14 @@ namespace project_namespace{
         /// \brief defines the addition between a Mvec and a scalar
         /// \param value - second operand (scalar)
         /// \return this + scalar
-        template<typename S>
+        template<Scalar S>
         Mvec operator+(const S &value) const;
 
         /// \brief defines the addition between a scalar and a Mvec
         /// \param value a scalar
         /// \param mv - second operand of type Mvec
         /// \return scalar + mv
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator+(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the += operator, corresponds to this += mv
@@ -145,14 +155,14 @@ namespace project_namespace{
         /// \brief defines the difference between a Mvec and a scalar
         /// \param value - second operand (scalar)
         /// \return this - scalar
-        template<typename S>
+        template<Scalar S>
         Mvec operator-(const S &value) const;
 
         /// \brief defines the difference between a scalar and a Mvec
         /// \param value a scalar
         /// \param mv - second operand of type Mvec
         /// \return scalar - mvX
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator-(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the -= operator, corresponds to this -= mv
@@ -168,14 +178,14 @@ namespace project_namespace{
         /// \brief defines the outer product a multivector and a scalar
         /// \param value - a scalar
         /// \return this^value
-        template<typename S>
+        template<Scalar S>
         Mvec operator^(const S &value) const;
 
         /// \brief defines the outer product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return value ^ mv
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator^(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the outer product with operator =, corresponds to this ^= mv
@@ -191,14 +201,14 @@ namespace project_namespace{
         /// \brief defines the inner product between a multivector and a scalar
         /// \param value - a scalar
         /// \return this.value = 0 (empty multivector)
-        template<typename S>
+        template<Scalar S>
         Mvec operator|(const S &value) const;
 
         /// \brief defines the inner product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return mv.value = 0 (empty multivector)
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator|(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the inner product with operator =, corresponds to this |= mv
@@ -214,14 +224,14 @@ namespace project_namespace{
         /// \brief defines the right contraction between a multivector and a scalar
         /// \param value - a scalar
         /// \return $this \\lfloor value$
-        template<typename S>
+        template<Scalar S>
         Mvec operator>(const S &value) const;
 
         /// \brief defines the right contraction between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return $value \\lfloor this = 0$ (empty multivector)
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator>(const S &value, const Mvec<U> &mv);
 
         /// \brief defines the left contraction between two multivectors
@@ -232,14 +242,14 @@ namespace project_namespace{
         /// \brief defines the left contraction between a multivector and a scalar
         /// \param value - a scalar
         /// \return $value \\rfloor this$ = 0 (empty multivector)
-        template<typename S>
+        template<Scalar S>
         Mvec operator<(const S &value) const;
 
         /// \brief defines the left contraction between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return $this \\rfloor value$
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator<(const S &value, const Mvec<U> &mv);
 
         /// \brief defines the geometric product between two multivectors
@@ -278,14 +288,14 @@ namespace project_namespace{
         /// \brief defines the geometric product between a multivector and a scalar
         /// \param value - a scalar
         /// \return mv2*value
-        template<typename S>
+        template<Scalar S>
         Mvec operator*(const S &value) const;
 
         /// \brief defines the geometric product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return value*mv2
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator*(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the geometric product with operator =, corresponds to this *= mv
@@ -301,14 +311,14 @@ namespace project_namespace{
         /// \brief defines the scalar inverse between a multivector and a scalar
         /// \param value - a scalar
         /// \return this / value
-        template<typename S>
+        template<Scalar S>
         Mvec operator/(const S &value) const;
 
         /// \brief defines the inverse product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return value / mv
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator/(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the inverse with operator =, corresponds to this /= mv
@@ -320,7 +330,7 @@ namespace project_namespace{
         /// \brief Overload the inverse with operator =, corresponds to this /= value
         /// \param value - scalar to divide the object
         /// \return this /= value
-        template<typename S>
+        template<Scalar S>
         Mvec& operator/=(const S &value);
 
 
@@ -330,16 +340,16 @@ namespace project_namespace{
         template<typename U>
         friend Mvec<U> operator~(const Mvec<U> &mv);
 
-        /// \brief the dual of a k-vector is defined as $A_k^* = A_k \\lcont I_n^{-1}$, for a multivector, we just dualize all its components. If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
+        /// \brief the dual of a k-vector is defined as $A_k^* = A_k \\lcont I_n$ (left contraction onto the pseudo-scalar), for a multivector, we just dualize all its components. If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
         /// \param mv - a multivector
         /// \return the dual of mv
         template<typename U>
         friend Mvec<U> operator!(const Mvec<U> &mv);
 
-        /// \brief boolean operator that tests the equality between two Mvec
+        /// \brief boolean operator that tests the equality between two Mvec (mv1 != mv2 is rewritten by the compiler as !(mv1 == mv2))
         /// \param mv2 - second operand of type Mvec
         /// \return whether two Mvec have the same coefficients
-        inline bool operator==(const Mvec& mv2){
+        inline bool operator==(const Mvec& mv2) const {
             if(gradeBitmap != mv2.gradeBitmap)
                 return false;
 
@@ -350,14 +360,6 @@ namespace project_namespace{
         /// \return - the inverse of the current multivector
         Mvec<T> inv() const;
 
-
-            /// \brief operator to test whether two Mvec have not the same coefficients
-        /// \param mv2 - second operand of type Mvec
-        /// \return boolean that specify the non-equality between two Mvec
-        inline bool operator!=(const Mvec& mv2){
-            return !(*this == mv2); // issue #4 fixed by replacing Not !(mvData == mv2.mvData) with !(*this == mv2)
-        }
-
         /// \brief Display all the non-null basis blades of this objects
         /// \param stream - destination stream
         /// \param mvec - the multivector to be outputed
@@ -366,15 +368,18 @@ namespace project_namespace{
         friend std::ostream& operator<< (std::ostream& stream, const Mvec<U> &mvec);
 
         /// \brief overload the casting operator, using this function, it is now possible to compute : float a = float(mv);
+        /// (explicit: a multivector is not silently converted to its scalar part, e.g. in fabs(mv) or double d = mv;
+        /// a template, so that a cast to any arithmetic type, e.g. int(mv), works as before)
         /// \return the scalar part of the multivector
-        operator T () {
+        template<Scalar S>
+        explicit operator S () const {
             // if no scalar part, return
 
             if( (gradeBitmap & 1) == 0 )
-                return 0;
+                return S(0);
 
             // assuming now that the scalar part exists, return it
-            return findGrade(0)->vec[0];
+            return S(findGrade(0)->vec[0]);
         }
 
         /// \brief Overload the [] operator to assign a basis blade to a multivector. As an example, float a = mv[E12] = 42.
@@ -382,107 +387,27 @@ namespace project_namespace{
         /// \return the coefficient of the multivector corresponding to the "idx" component.
         /// \todo handle the cases when the number of indices is higher than the dimension, and when the index is too high
         T& operator[](const int idx ){
-
-            const unsigned int grade = xorIndexToGrade[idx];
-            const unsigned int idxHomogeneous = xorIndexToHomogeneousIndex[idx];
-
-            auto it = mvData.begin();
-            while(it != mvData.end()){
-
-                // if grade not reach yet, continue
-                if(it->grade < grade)
-                    ++it;
-                else{
-
-                    // if grade found
-                    if(it->grade == grade)
-                        return it->vec[idxHomogeneous];
-
-                    // if grade exceed, create it and inster it before the current element
-                    Kvec<T> kvec = {Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]),grade};
-                    auto it2 = mvData.insert(it,kvec);
-                    gradeBitmap |= 1 << (grade);
-                    return it2->vec[idxHomogeneous];
-                }
-            }
-
-            // if the searched element should be added at the end, add it
-            Kvec<T> kvec = {Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]),grade};
-
-            auto it2 = mvData.insert(mvData.end(),kvec);
-            gradeBitmap |= 1 << (grade);
-            return it2->vec[idxHomogeneous];
+            // the k-vector is created (null) if the multivector does not contain it yet
+            return createVectorXdIfDoesNotExist(xorIndexToGrade[idx])->vec[xorIndexToHomogeneousIndex[idx]];
         }
 
         /// \brief Overload the [] operator to copy a basis blade of this multivector. As an example, float a = mv[E12].
         /// \param idx - the basis vector index related to the query.
         /// \return the coefficient of the multivector corresponding to the "idx" component.
         const T& operator[](const int idx) const{
-
-            const unsigned int grade = xorIndexToGrade[idx];
-            const unsigned int idxHomogeneous = xorIndexToHomogeneousIndex[idx];
-
-            auto it = mvData.begin();
-            while(it != mvData.end()){
-
-                // if grade not reach yet, continue
-                if(it->grade < grade)
-                    ++it;
-                else{
-
-                    // if grade found
-                    if(it->grade == grade)
-                        return it->vec[idxHomogeneous];
-
-                    // if grade exceed, return a reference on zero
-                    return zero<T>;
-                }
-            }
-
-            // searched element not found
-            return zero<T>;
+            // if the multivector does not contain the k-vector, return a reference on zero
+            auto it = findGrade(xorIndexToGrade[idx]);
+            return (it == mvData.end()) ? zero<T> : it->vec[xorIndexToHomogeneousIndex[idx]];
         }
-
-/*
-        /// \cond DEV
-        // Variadic operators
-        /// \brief Overload the () operator to assign a basis blade to a multivector. As an example, consider we have a Mvec a and we want to set its e23 component to 4.7, using operator(), it will consists in writing a[2,3]=4.8.
-        /// \tparam Arguments - denotes a variadic list of index
-        /// \param listIndices - the list of indices
-        /// \return the right index in the homogeneous vectorXd
-        /// \todo future work + handle the cases when the number of indices is higher than the dimension, and when the index is too high
-        template<typename... List>
-        T& operator()(List ...listIndices){
-            // operation on these arguments
-            // First determine the grade, simply use the variadic function sizeof...()
-            // This function is correct in terms of indexing
-            const int gd = sizeof...(listIndices); //
-
-            // Second, from these parameters, compute the index in the corresponding VectorXd
-            const int idx = (Binomial<algebraDimension,gd>::value-1) - computeIdxFromList(algebraDimension,gd,listIndices...);//Binomial<algebraDimension,binomCoef>::value;//binomCoef - sumB(first,listIndices...);//computeOrderingIndex<>(listIndices...);//(Binomial<algebraDimension,gd>::value-1);//-computeOrderingIndex<int,List>(4,2,listIndices...);//computeOrderingIndex<algebraDimension,gd>(listIndices...);//idxVariadic<algebraDimension,gd,first,listIndices...>::value; //computeOrderingIndex<algebraDimension,gd,listIndices...>();//idxVariadic<algebraDimension,gd,listIndices...>::value; // (Binomial<algebraDimension,gd>::value-1)- idxVariadic<algebraDimension,gd,listIndices...>::value
-
-            if(mvData.count(gd)>0)
-                return (mvData.at(gd))(idx);
-
-            mvData[gd] = Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(Binomial<algebraDimension,gd>::value);
-
-            return mvData[gd](idx);
-        }
-        /// \endcond
-*/
 
         /// \cond DEV
         /// \brief returns a multivector with one component to 1
         /// \param grade : grade of the component to enable
         /// \param index : index of the parameter in the k-vector (k = grade)
         inline Mvec componentToOne(const unsigned int grade, const int index){
-            Kvec<T> kvec;
-			kvec.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]);
-			kvec.grade=grade;
-            kvec.vec[index] = T(1);
             Mvec mv1;
-            mv1.mvData.push_back(kvec);
-            mv1.gradeBitmap = 1 << (grade);
+            mv1.mvData.push_back(Kvec<T>{.vec = Eigen::Matrix<T, Eigen::Dynamic, 1>::Unit(binomialArray[grade], index), .grade = grade});
+            mv1.gradeBitmap = 1u << grade;
 
             return mv1;
         }
@@ -494,37 +419,27 @@ namespace project_namespace{
         /// \return nothing
         inline typename std::list<Kvec<T>>::iterator createVectorXdIfDoesNotExist(const unsigned int grade){
 
-            auto it = mvData.begin();
-            while(it != mvData.end()){
+            // the k-vectors are sorted by increasing grade: find the first one whose grade is not lower than 'grade'
+            auto it = std::ranges::find_if(mvData, [grade](const unsigned int kvecGrade){ return kvecGrade >= grade; }, &Kvec<T>::grade);
+            if(it != mvData.end() && it->grade == grade)
+                return it;
 
-                // if grade not reach yet, continue
-                if(it->grade < grade)
-                    ++it;
-                else{
-
-                    // if grade found
-                    if(it->grade == grade)
-                        return it;
-
-                    // if grade exceed, create it and inster it before the current element
-                    Kvec<T> kvec;
-					kvec.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]);
-					kvec.grade=grade;
-                    auto it2 = mvData.insert(it,kvec);
-                    gradeBitmap |= 1 << (grade);
-                    return it2;
-                }
-            }
-
-            // if the searched element should be added at the end, add it
-            Kvec<T> kvec;
-			kvec.vec=Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]);
-			kvec.grade=grade;
-            auto it2 = mvData.insert(mvData.end(),kvec);
-            gradeBitmap |= 1 << (grade);
-            return it2;
+            // not found: insert a null k-vector before the current element (possibly the end)
+            gradeBitmap |= 1u << grade;
+            return mvData.insert(it, Kvec<T>{.vec = Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[grade]), .grade = grade});
         }
 
+
+        /// \cond DEV
+        /// \brief remove the k-vector pointed by 'it' if all its components are 0: the result of an operation never contains null k-vectors (the empty multivector is 0).
+        /// \param it - iterator on a k-vector of this multivector
+        inline void eraseIfNull(typename std::list<Kvec<T>>::iterator it){
+            if(!((it->vec.array() != T(0)).any())){
+                gradeBitmap &= ~(1u << it->grade);
+                mvData.erase(it);
+            }
+        }
+        /// \endcond // do not comment this functions
 
         /// \cond DEV
         /// \brief modify the element of the multivector whose grade is "grade"
@@ -555,16 +470,16 @@ namespace project_namespace{
         /// \brief the L2-norm of the mv is sqrt( abs( mv.mv ) )
         /// \return the L2-norm of the multivector (as a double)
         T inline norm() const {
-            return sqrt( fabs( (*this).scalarProduct( this->reverse() ) ));
+            return sqrt( fabs( T((*this).scalarProduct( this->reverse() )) ));
         }
 
         /// \brief the L2-norm over 2 of the mv is mv.mv
         /// \return the L2-norm of the multivector (as a double)
         T inline quadraticNorm() const {
-            return ( this->reverse() > (*this) );
+            return T( this->reverse() > (*this) );
         }
 
-        /// \brief compute the dual of a multivector (i.e mv* = reverse(mv) * Iinv). If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
+        /// \brief compute the dual of a multivector (i.e. mv* = mv < I, the left contraction of mv onto the pseudo-scalar). If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
         /// \return - the dual of the multivector
         Mvec<T> dual() const;
 
@@ -575,23 +490,13 @@ namespace project_namespace{
         /// \brief search in the multivector for a Kvec of grade "grade"
         /// \return return a const iterator on the Kvec if exist, else return mvData.end()
         inline typename std::list<Kvec<T>>::const_iterator findGrade(const unsigned int & gradeToFind) const {
-            for(auto it = mvData.begin();it != mvData.end();++it){
-                if(it->grade==gradeToFind){
-                    return it;
-                }
-            }
-            return mvData.end();
+            return std::ranges::find(mvData, gradeToFind, &Kvec<T>::grade);
         }
 
         /// \brief search in the multivector for a Kvec of grade "grade"
         /// \return return an iterator on the Kvec if exist, else return mvData.end()
         inline typename std::list<Kvec<T>>::iterator findGrade(const unsigned int & gradeToFind) {
-            for(auto it = mvData.begin();it != mvData.end();++it){
-                if(it->grade==gradeToFind){
-                    return it;
-                }
-            }
-            return mvData.end();
+            return std::ranges::find(mvData, gradeToFind, &Kvec<T>::grade);
         }
 
         /// \brief return the (highest) grade of the multivector
@@ -657,31 +562,6 @@ namespace project_namespace{
         friend void traverseKVector(std::ostream &stream, const Eigen::Matrix<U, Eigen::Dynamic, 1>, unsigned int gradeMV, bool& moreThanOne);
         /// \endcond // do not comment this functions
 
-/*
-        /// \cond DEV
-        /// \brief functions that enables to  to be able to extract a component of a multivector as a multivector. As an example, mv1.e(1,3) will create a multivector whose 1,3 component will be the component of mv1.
-        /// \tparam Arguments - denotes a variadic list of index
-        /// \param listIndices - the list of indices
-        /// \return a homogeneous multivector filled with zero except the listIndices index
-        /// \todo future work + handle the cases when the number of indices is higher than the dimension, and when the index is too high
-        template<typename... List>
-        Mvec e(List ...listIndices){
-            // operation on these arguments
-            // First determine the grade, simply use the variadic function sizeof...()
-            const int gd = sizeof...(listIndices); //
-
-            // Second, from these parameters, compute the index in the corresponding VectorXd
-            const int idx = (Binomial<algebraDimension,gd>::value-1) - computeIdxFromList(algebraDimension,gd,listIndices...);
-
-            Mvec res;
-            res.mvData[gd] = Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(Binomial<algebraDimension,gd>::value);
-            res.mvData[gd](idx) = mvData[gd](idx);
-
-            return res;
-        }
-        /// \endcond // do not comment this functions
-*/
-
 
         /// \brief functions that enables to extract one component of this multivector and initialize another mv with this component
         /// \tparam Arguments - denotes a variadic list of index
@@ -692,7 +572,8 @@ namespace project_namespace{
         Mvec extractOneComponent(const int grade, const int sizeOfKVector, const int indexInKvector) const {
             Mvec mv;
             auto itThisMV = this->findGrade(grade);
-            if(itThisMV==this->mvData.end()){
+            // null component: the result is the empty multivector
+            if(itThisMV==this->mvData.end() || itThisMV->vec.coeff(indexInKvector) == T(0)){
                 return mv;
             }
             mv = mv.componentToOne(grade,indexInKvector);
@@ -718,15 +599,12 @@ project_multivector_one_component
     template<typename T>
     Mvec<T>::Mvec(const Mvec& mv) : mvData(mv.mvData), gradeBitmap(mv.gradeBitmap)
     {
-        //std::cout << "copy constructor " << std::endl;
     }
 
 
     template<typename T>
     Mvec<T>::Mvec(Mvec<T>&& multivector) : mvData(std::move(multivector.mvData)), gradeBitmap(multivector.gradeBitmap)
     {
-        // the move constructor
-        //std::cout << "move constructor" << std::endl;
     }
 
 
@@ -734,27 +612,17 @@ project_multivector_one_component
     template<typename U>
     Mvec<T>::Mvec(const Mvec<U> &mv) : gradeBitmap(mv.gradeBitmap)
     {
-        for(auto it=mv.mvData.begin(); it != mv.mvData.end(); ++it){
-            Kvec<T> kvec;
-            kvec.grade = it->grade;
-            kvec.vec = Eigen::Matrix<T, Eigen::Dynamic, 1>::Zero(binomialArray[it->grade]);
-            for(unsigned int i=0; i<it->vec.size(); ++i)
-                kvec.vec.coeffRef(i) = T(it->vec.coeff(i));
-            mvData.push_back(kvec);
-        }
+        for(const auto & kvec : mv.mvData)
+            mvData.push_back(Kvec<T>{.vec = kvec.vec.template cast<T>(), .grade = kvec.grade});
     }
 
 
     template<typename T>
-    template<typename U>
-    Mvec<T>::Mvec(const U val) {
+    template<Scalar U>
+    Mvec<T>::Mvec(const U val) : gradeBitmap(0) {
         if(val != U(0)) {
             gradeBitmap = 1;
-            Kvec<T> kvec;
-            kvec.vec =Eigen::Matrix<T, Eigen::Dynamic, 1>(1);
-            kvec.grade =0;
-            mvData.push_back(kvec);
-            mvData.begin()->vec.coeffRef(0) = val;
+            mvData.push_back(Kvec<T>{.vec = Eigen::Matrix<T, Eigen::Dynamic, 1>::Constant(1, T(val)), .grade = 0});
         }
     }
 
@@ -787,24 +655,26 @@ project_multivector_one_component
         for(auto & itMv : mv2.mvData) {
             auto it = mv3.createVectorXdIfDoesNotExist(itMv.grade);
             it->vec += itMv.vec;
+            mv3.eraseIfNull(it);
         }
         return mv3;
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator+(const S &value, const Mvec<U> &mv){
         return mv + value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator+(const S &value) const {
         Mvec<T> mv(*this);
         if(value != T(0)) {
             auto it = mv.createVectorXdIfDoesNotExist(0);
             it->vec.coeffRef(0) += value;
+            mv.eraseIfNull(it);
         }
         return mv;
     }
@@ -832,6 +702,7 @@ project_multivector_one_component
         for(auto & itMv : mv2.mvData) {
             auto it = mv3.createVectorXdIfDoesNotExist(itMv.grade);
             it->vec -= itMv.vec;
+            mv3.eraseIfNull(it);
         }
         return mv3;
     }
@@ -844,19 +715,20 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator-(const S &value, const Mvec<U> &mv){
         return (-mv) + value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator-(const S &value) const {
         Mvec<T> mv(*this);
         if(value != T(0)) {
             auto it = mv.createVectorXdIfDoesNotExist(0);
             it->vec.coeffRef(0) -= value;
+            mv.eraseIfNull(it);
         }
         return mv;
     }
@@ -864,23 +736,6 @@ project_multivector_one_component
 
     template<typename T>
     Mvec<T> Mvec<T>::operator^(const Mvec<T> &mv2) const {
-#if 0 // only recursive version
-        // Loop over non-empty grade of mv1 and mv2
-        // This version (with recursive call) is only faster than the standard recursive call if
-        // the multivector mv1 and mv2 are homogeneous or near from homogeneous.
-        Mvec<T> mv3;
-        for(const auto & itMv1 : this->mvData)    // all per-grade component of mv1
-            for(const auto & itMv2 : mv2.mvData)  // all per-grade component of mv2
-            {
-                unsigned int grade_mv3 = itMv1.grade + itMv2.grade;
-                if(grade_mv3 <= algebraDimension) {
-                    auto itMv3 = mv3.createVectorXdIfDoesNotExist(grade_mv3);
-                    outerProductHomogeneous(itMv1.vec, itMv2.vec, itMv3->vec,
-                                            itMv1.grade, itMv2.grade, grade_mv3);
-                }
-            }
-        return mv3;
-#else // use the adaptative pointer function array
         // Loop over non-empty grade of mv1 and mv2
         // call the right explicit unrolled outer function using the functions pointer called outerFunctionsContainer
         Mvec<T> mv3;
@@ -889,20 +744,20 @@ project_multivector_one_component
                 if(itMv1.grade + itMv2.grade <= (int) algebraDimension ){
                     auto itMv3 = mv3.createVectorXdIfDoesNotExist(itMv1.grade + itMv2.grade);
                     outerFunctionsContainer<T>[itMv1.grade][itMv2.grade](itMv1.vec, itMv2.vec, itMv3->vec);
+                    mv3.eraseIfNull(itMv3);
                 }
             }
         return mv3;
-#endif
     }
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator^(const S &value, const Mvec<U> &mv) {
         return  mv^value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator^(const S &value) const {
         Mvec<T> mv2(*this);
         for(auto & itMv : mv2.mvData)
@@ -945,14 +800,14 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator|(const S &value, const Mvec<U> &mv) {
         return Mvec<U>();
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator|(const S &value) const {
         return Mvec<T>() ; // inner between a mv and a scalar gives 0 (empty multivector)
     }
@@ -993,7 +848,7 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator>(const S &value, const Mvec<U> &mv) {
         if( (mv.gradeBitmap & 1) == 0) return Mvec<U>();
         else return Mvec<U>( U(mv.mvData.begin()->vec.coeff(0) * value ) );
@@ -1001,7 +856,7 @@ project_multivector_one_component
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator>(const S &value) const {
         // return mv x value
         Mvec<T> mv(*this);
@@ -1039,7 +894,7 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator<(const S &value, const Mvec<U> &mv) {
         // return mv x value
         Mvec<U> mv3(mv);
@@ -1050,7 +905,7 @@ project_multivector_one_component
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator<(const S &value) const {
         if( (gradeBitmap & 1) == 0) return Mvec<T>();
         else return Mvec<T>( T(mvData.begin()->vec.coeff(0) * value ) );
@@ -1084,83 +939,21 @@ project_multivector_one_component
 
 
 project_singular_metric_comment_begin
+    // the dual of a multivector is a cheap operation (permutation and scaling of its components), and the outer product
+    // relies on the precomputed products: these "outer product with dual" operations are directly computed from their definition.
     template<typename T>
     Mvec<T> Mvec<T>::outerPrimalDual(const Mvec<T> &mv2) const{
-        Mvec<T> mv3;
-
-        for(const auto & itMv1 : this->mvData)    // all per-grade component of mv1
-            for(const auto & itMv2 : mv2.mvData)  // all per-grade component of mv2
-            {
-                unsigned int grade_mv3 = itMv1.grade + (algebraDimension-itMv2.grade);
-                if(grade_mv3 <= algebraDimension) {
-                    // handle the scalar product as well as the left contraction
-                    auto itMv3 = mv3.createVectorXdIfDoesNotExist(grade_mv3);
-                    outerProductPrimalDual(itMv1.vec, itMv2.vec, itMv3->vec,
-                                           itMv1.grade, itMv2.grade, (unsigned)(algebraDimension-grade_mv3));
-
-                    // check if the result is non-zero
-                    if(!((itMv3->vec.array() != 0.0).any())){
-                        mv3.mvData.erase(itMv3);
-                        mv3.gradeBitmap &= ~(1<<grade_mv3);
-                    }
-                }
-            }
-
-        return mv3;
+        return (*this) ^ mv2.dual();
     }
 
     template<typename T>
     Mvec<T> Mvec<T>::outerDualPrimal(const Mvec<T> &mv2) const{
-        Mvec<T> mv3;
-
-        for(const auto & itMv1 : this->mvData)    // all per-grade component of mv1
-            for(const auto & itMv2 : mv2.mvData)  // all per-grade component of mv2
-            {
-                unsigned int grade_mv3 = itMv1.grade + (algebraDimension-itMv2.grade);
-                if(grade_mv3 <= algebraDimension) {
-                    // handle the scalar product as well as the left contraction
-                    auto itMv3 = mv3.createVectorXdIfDoesNotExist(grade_mv3);
-                    outerProductDualPrimal(itMv1.vec, itMv2.vec, itMv3->vec,
-                                           itMv1.grade, itMv2.grade, (unsigned)(algebraDimension-grade_mv3));
-
-                    // check if the result is non-zero
-                    if(!((itMv3->vec.array() != 0.0).any())){
-                        mv3.mvData.erase(itMv3);
-                        mv3.gradeBitmap &= ~(1<<grade_mv3);
-                    }
-                }
-            }
-
-
-        return mv3;
-
+        return this->dual() ^ mv2;
     }
 
     template<typename T>
     Mvec<T> Mvec<T>::outerDualDual(const Mvec<T> &mv2) const{
-        Mvec<T> mv3;
-
-        for(const auto & itMv1 : this->mvData)    // all per-grade component of mv1
-            for(const auto & itMv2 : mv2.mvData)  // all per-grade component of mv2
-            {
-                unsigned int grade_mv3 = itMv1.grade + (algebraDimension-itMv2.grade);
-                if(grade_mv3 <= algebraDimension) {
-                    // handle the scalar product as well as the left contraction
-                    auto itMv3 = mv3.createVectorXdIfDoesNotExist(grade_mv3);
-                    outerProductDualDual(itMv1.vec, itMv2.vec, itMv3->vec,
-                                           itMv1.grade, itMv2.grade, (unsigned)(algebraDimension-grade_mv3));
-
-                    // check if the result is non-zero
-                    if(!((itMv3->vec.array() != 0.0).any())){
-                        mv3.mvData.erase(itMv3);
-                        mv3.gradeBitmap &= ~(1<<grade_mv3);
-                    }
-                }
-            }
-
-
-        return mv3;
-
+        return this->dual() ^ mv2.dual();
     }
 
 project_singular_metric_comment_end
@@ -1220,7 +1013,7 @@ project_singular_metric_comment_end
                     }
 
                     // geometric product part
-                    int gradeMax = std::min(((2*algebraDimension)-gradeOuter)+1,gradeOuter);
+                    int gradeMax = (std::min)(((2*algebraDimension)-gradeOuter)+1,gradeOuter);
                     for (int gradeResult = gradeInner+2; gradeResult < gradeMax; gradeResult+=2) {
                         auto itMv3 = mv3.createVectorXdIfDoesNotExist(gradeResult);
                         geometricFunctionsContainer<T>[gradeResult][itMv1.grade][itMv2.grade](itMv1.vec, itMv2.vec, itMv3->vec);
@@ -1236,14 +1029,14 @@ project_singular_metric_comment_end
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator*(const S &value, const Mvec<U> &mv){
         return mv * value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator*(const S &value) const{
         Mvec<T> mv(*this);
         for(auto & itMv : mv.mvData)
@@ -1265,14 +1058,14 @@ project_singular_metric_comment_end
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator/(const S &value, const Mvec<U> &mv){
         return value * mv.inv();
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator/(const S &value) const {
         Mvec<T> mv(*this);
         for(auto & itMv : mv.mvData)
@@ -1288,7 +1081,7 @@ project_singular_metric_comment_end
     }
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> &Mvec<T>::operator/=(const S &value) {
         *this = *this / value;
         return *this;
@@ -1354,9 +1147,14 @@ project_singular_metric_comment_begin
     }
 project_singular_metric_comment_end
 
-    // compute the dual of a multivector (i.e mv* = mv.reverse() * Iinv)
+    // compute the dual of a multivector (i.e. mv* = mv < I, the left contraction of mv onto the pseudo-scalar)
     template<typename T>
     Mvec<T> Mvec<T>::dual() const {
+        // general metric (neither diagonal nor a permutation of a diagonal matrix): the dual of a basis blade
+        // is a linear combination of basis blades, it is computed from its definition
+        if(!fastDualAvailable)
+            return (*this) < I<T>();
+
         Mvec<T> mvResult;
         // for each k-vectors of the multivector
         for(auto itMv=mvData.rbegin(); itMv!=mvData.rend(); ++itMv){
@@ -1546,11 +1344,7 @@ project_singular_metric_comment_end
     // static unit multivector functions (returns a multivector with only one component)
 project_static_multivector_one_component
 
-    //    template<typename U>
-    //    void recursiveTraversalMultivector(std::ostream &stream, const Mvec<U> &mvec, unsigned int currentGrade, int currentIndex, std::vector<int> listBasisBlades, unsigned int lastIndex, unsigned int gradeMV, bool& moreThanOne);
 
-
-    void temporaryFunction1();
 
 }     /// End of Namespace
 

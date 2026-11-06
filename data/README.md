@@ -13,7 +13,7 @@ Install
 
 ## Dependencies
     * 'Eigen 3.3.4'  or more [Eigen](http://eigen.tuxfamily.org)
-    * 'Cmake 3.10' or more
+    * 'Cmake 3.14' or more (3.18 for the Python binding)
     * (optinal) 'Doxygen' if you want a documentation page
 
 ## Compiler tested
@@ -31,8 +31,8 @@ Install
         * 'cmake ..'
         * check that the cmake output has no errors
         * 'make'
-        * the binary library is on the 'build' directory
-        * (optional) 'sudo make install'
+        * project_namespace is header-only: no binary library is built
+        * (optional) 'sudo make install' to install the headers and the CMake package
         * (optional) 'make html' to generate Doxygen documentation that can be found in 'build/doc/doc-doxygen/html/index.html'
     * you can find a sample code dedicated to project_namespace in the 'sample directory'
 
@@ -45,8 +45,8 @@ Install
         * 'cmake -G "MinGW Makefiles" ..'
         * check that the cmake output has no errors
         * 'make'
-        * the binary library is on the 'build' directory
-        * (optional) 'mingw32-make install'
+        * project_namespace is header-only: no binary library is built
+        * (optional) 'mingw32-make install' to install the headers and the CMake package
     * you can find a sample code dedicated to project_namespace in the 'sample directory'
 
 
@@ -56,6 +56,12 @@ Usage
 ## Use of project_namespace
 
     * refer to the sample code in 'sample/src' directory and to the documentation or to the [cheatSheet.txt](cheatSheet.txt)
+    * in a CMake project, after installing project_namespace:
+
+        find_package(project_namespace CONFIG REQUIRED)
+        target_link_libraries(my_app PRIVATE project_namespace::project_namespace)
+
+    * if project_namespace or Eigen is installed in a non-standard location, configure with '-DCMAKE_PREFIX_PATH="[project_namespace install prefix];[Eigen install prefix]"'
 
 
 Notes
