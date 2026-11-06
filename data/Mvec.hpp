@@ -25,6 +25,7 @@
 #include <cmath>
 #include <limits>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 // Internal Includes (Mvec.hpp is the header to include to use the library: it exports the constants and the utilities)
@@ -43,6 +44,12 @@
  * @namespace project_namespace
  */
 namespace project_namespace{
+
+    /// \brief the scalar types a multivector can be constructed from or combined with (e.g. 2.0 * mv):
+    /// the arithmetic types only, so that the implicit constructor Mvec(S) does not make any other type
+    /// (e.g. a char *) convertible to a multivector
+    template<typename S>
+    concept Scalar = std::is_arithmetic_v<S>;
 
 
     /// \class Kvec
@@ -95,7 +102,7 @@ namespace project_namespace{
 
         /// \brief Constructor of Mvec from a scalar
         /// \param val - scalar value
-        template<typename S>
+        template<Scalar S>
         Mvec(const S val);
 
         /// Destructor
@@ -119,14 +126,14 @@ namespace project_namespace{
         /// \brief defines the addition between a Mvec and a scalar
         /// \param value - second operand (scalar)
         /// \return this + scalar
-        template<typename S>
+        template<Scalar S>
         Mvec operator+(const S &value) const;
 
         /// \brief defines the addition between a scalar and a Mvec
         /// \param value a scalar
         /// \param mv - second operand of type Mvec
         /// \return scalar + mv
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator+(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the += operator, corresponds to this += mv
@@ -148,14 +155,14 @@ namespace project_namespace{
         /// \brief defines the difference between a Mvec and a scalar
         /// \param value - second operand (scalar)
         /// \return this - scalar
-        template<typename S>
+        template<Scalar S>
         Mvec operator-(const S &value) const;
 
         /// \brief defines the difference between a scalar and a Mvec
         /// \param value a scalar
         /// \param mv - second operand of type Mvec
         /// \return scalar - mvX
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator-(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the -= operator, corresponds to this -= mv
@@ -171,14 +178,14 @@ namespace project_namespace{
         /// \brief defines the outer product a multivector and a scalar
         /// \param value - a scalar
         /// \return this^value
-        template<typename S>
+        template<Scalar S>
         Mvec operator^(const S &value) const;
 
         /// \brief defines the outer product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return value ^ mv
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator^(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the outer product with operator =, corresponds to this ^= mv
@@ -194,14 +201,14 @@ namespace project_namespace{
         /// \brief defines the inner product between a multivector and a scalar
         /// \param value - a scalar
         /// \return this.value = 0 (empty multivector)
-        template<typename S>
+        template<Scalar S>
         Mvec operator|(const S &value) const;
 
         /// \brief defines the inner product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return mv.value = 0 (empty multivector)
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator|(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the inner product with operator =, corresponds to this |= mv
@@ -217,14 +224,14 @@ namespace project_namespace{
         /// \brief defines the right contraction between a multivector and a scalar
         /// \param value - a scalar
         /// \return $this \\lfloor value$
-        template<typename S>
+        template<Scalar S>
         Mvec operator>(const S &value) const;
 
         /// \brief defines the right contraction between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return $value \\lfloor this = 0$ (empty multivector)
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator>(const S &value, const Mvec<U> &mv);
 
         /// \brief defines the left contraction between two multivectors
@@ -235,14 +242,14 @@ namespace project_namespace{
         /// \brief defines the left contraction between a multivector and a scalar
         /// \param value - a scalar
         /// \return $value \\rfloor this$ = 0 (empty multivector)
-        template<typename S>
+        template<Scalar S>
         Mvec operator<(const S &value) const;
 
         /// \brief defines the left contraction between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return $this \\rfloor value$
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator<(const S &value, const Mvec<U> &mv);
 
         /// \brief defines the geometric product between two multivectors
@@ -281,14 +288,14 @@ namespace project_namespace{
         /// \brief defines the geometric product between a multivector and a scalar
         /// \param value - a scalar
         /// \return mv2*value
-        template<typename S>
+        template<Scalar S>
         Mvec operator*(const S &value) const;
 
         /// \brief defines the geometric product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return value*mv2
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator*(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the geometric product with operator =, corresponds to this *= mv
@@ -304,14 +311,14 @@ namespace project_namespace{
         /// \brief defines the scalar inverse between a multivector and a scalar
         /// \param value - a scalar
         /// \return this / value
-        template<typename S>
+        template<Scalar S>
         Mvec operator/(const S &value) const;
 
         /// \brief defines the inverse product between a scalar and a multivector
         /// \param value - a scalar
         /// \param mv - a multivector
         /// \return value / mv
-        template<typename U, typename S>
+        template<typename U, Scalar S>
         friend Mvec<U> operator/(const S &value, const Mvec<U> &mv);
 
         /// \brief Overload the inverse with operator =, corresponds to this /= mv
@@ -323,7 +330,7 @@ namespace project_namespace{
         /// \brief Overload the inverse with operator =, corresponds to this /= value
         /// \param value - scalar to divide the object
         /// \return this /= value
-        template<typename S>
+        template<Scalar S>
         Mvec& operator/=(const S &value);
 
 
@@ -361,15 +368,18 @@ namespace project_namespace{
         friend std::ostream& operator<< (std::ostream& stream, const Mvec<U> &mvec);
 
         /// \brief overload the casting operator, using this function, it is now possible to compute : float a = float(mv);
+        /// (explicit: a multivector is not silently converted to its scalar part, e.g. in fabs(mv) or double d = mv;
+        /// a template, so that a cast to any arithmetic type, e.g. int(mv), works as before)
         /// \return the scalar part of the multivector
-        operator T () const {
+        template<Scalar S>
+        explicit operator S () const {
             // if no scalar part, return
 
             if( (gradeBitmap & 1) == 0 )
-                return 0;
+                return S(0);
 
             // assuming now that the scalar part exists, return it
-            return findGrade(0)->vec[0];
+            return S(findGrade(0)->vec[0]);
         }
 
         /// \brief Overload the [] operator to assign a basis blade to a multivector. As an example, float a = mv[E12] = 42.
@@ -460,13 +470,13 @@ namespace project_namespace{
         /// \brief the L2-norm of the mv is sqrt( abs( mv.mv ) )
         /// \return the L2-norm of the multivector (as a double)
         T inline norm() const {
-            return sqrt( fabs( (*this).scalarProduct( this->reverse() ) ));
+            return sqrt( fabs( T((*this).scalarProduct( this->reverse() )) ));
         }
 
         /// \brief the L2-norm over 2 of the mv is mv.mv
         /// \return the L2-norm of the multivector (as a double)
         T inline quadraticNorm() const {
-            return ( this->reverse() > (*this) );
+            return T( this->reverse() > (*this) );
         }
 
         /// \brief compute the dual of a multivector (i.e. mv* = mv < I, the left contraction of mv onto the pseudo-scalar). If the metric is degenerated, this function computes the right complement (mv ^ !mv = I).
@@ -608,7 +618,7 @@ project_multivector_one_component
 
 
     template<typename T>
-    template<typename U>
+    template<Scalar U>
     Mvec<T>::Mvec(const U val) : gradeBitmap(0) {
         if(val != U(0)) {
             gradeBitmap = 1;
@@ -651,14 +661,14 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator+(const S &value, const Mvec<U> &mv){
         return mv + value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator+(const S &value) const {
         Mvec<T> mv(*this);
         if(value != T(0)) {
@@ -705,14 +715,14 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator-(const S &value, const Mvec<U> &mv){
         return (-mv) + value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator-(const S &value) const {
         Mvec<T> mv(*this);
         if(value != T(0)) {
@@ -740,14 +750,14 @@ project_multivector_one_component
         return mv3;
     }
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator^(const S &value, const Mvec<U> &mv) {
         return  mv^value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator^(const S &value) const {
         Mvec<T> mv2(*this);
         for(auto & itMv : mv2.mvData)
@@ -790,14 +800,14 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator|(const S &value, const Mvec<U> &mv) {
         return Mvec<U>();
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator|(const S &value) const {
         return Mvec<T>() ; // inner between a mv and a scalar gives 0 (empty multivector)
     }
@@ -838,7 +848,7 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator>(const S &value, const Mvec<U> &mv) {
         if( (mv.gradeBitmap & 1) == 0) return Mvec<U>();
         else return Mvec<U>( U(mv.mvData.begin()->vec.coeff(0) * value ) );
@@ -846,7 +856,7 @@ project_multivector_one_component
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator>(const S &value) const {
         // return mv x value
         Mvec<T> mv(*this);
@@ -884,7 +894,7 @@ project_multivector_one_component
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator<(const S &value, const Mvec<U> &mv) {
         // return mv x value
         Mvec<U> mv3(mv);
@@ -895,7 +905,7 @@ project_multivector_one_component
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator<(const S &value) const {
         if( (gradeBitmap & 1) == 0) return Mvec<T>();
         else return Mvec<T>( T(mvData.begin()->vec.coeff(0) * value ) );
@@ -1003,7 +1013,7 @@ project_singular_metric_comment_end
                     }
 
                     // geometric product part
-                    int gradeMax = std::min(((2*algebraDimension)-gradeOuter)+1,gradeOuter);
+                    int gradeMax = (std::min)(((2*algebraDimension)-gradeOuter)+1,gradeOuter);
                     for (int gradeResult = gradeInner+2; gradeResult < gradeMax; gradeResult+=2) {
                         auto itMv3 = mv3.createVectorXdIfDoesNotExist(gradeResult);
                         geometricFunctionsContainer<T>[gradeResult][itMv1.grade][itMv2.grade](itMv1.vec, itMv2.vec, itMv3->vec);
@@ -1019,14 +1029,14 @@ project_singular_metric_comment_end
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator*(const S &value, const Mvec<U> &mv){
         return mv * value;
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator*(const S &value) const{
         Mvec<T> mv(*this);
         for(auto & itMv : mv.mvData)
@@ -1048,14 +1058,14 @@ project_singular_metric_comment_end
     }
 
 
-    template<typename U, typename S>
+    template<typename U, Scalar S>
     Mvec<U> operator/(const S &value, const Mvec<U> &mv){
         return value * mv.inv();
     }
 
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> Mvec<T>::operator/(const S &value) const {
         Mvec<T> mv(*this);
         for(auto & itMv : mv.mvData)
@@ -1071,7 +1081,7 @@ project_singular_metric_comment_end
     }
 
     template<typename T>
-    template<typename S>
+    template<Scalar S>
     Mvec<T> &Mvec<T>::operator/=(const S &value) {
         *this = *this / value;
         return *this;

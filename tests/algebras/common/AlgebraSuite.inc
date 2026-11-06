@@ -24,6 +24,7 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp> // IWYU pragma: export
@@ -775,6 +776,18 @@ TEST_CASE("conversion to scalar", GA_TAG "[container]") {
     const Mv constMv = mv;
     CHECK(double(constMv) == 5.0);
     CHECK(int(constMv) == 5);
+}
+
+TEST_CASE("no implicit conversions", GA_TAG "[container]") {
+    // a multivector is converted to its scalar part by an explicit cast only (fabs(mv) does not compile)
+    STATIC_REQUIRE(std::is_constructible_v<double, Mv>);
+    STATIC_REQUIRE(std::is_constructible_v<int, Mv>);
+    STATIC_REQUIRE_FALSE(std::is_convertible_v<Mv, double>);
+    // a multivector is implicitly constructed from an arithmetic type only (not e.g. from a string)
+    STATIC_REQUIRE(std::is_convertible_v<double, Mv>);
+    STATIC_REQUIRE(std::is_convertible_v<int, Mv>);
+    STATIC_REQUIRE_FALSE(std::is_convertible_v<const char *, Mv>);
+    STATIC_REQUIRE_FALSE(std::is_constructible_v<Mv, std::string>);
 }
 
 TEST_CASE("stream output", GA_TAG "[container]") {
